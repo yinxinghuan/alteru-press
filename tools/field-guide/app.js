@@ -96,13 +96,19 @@ async function handleFile(file) {
     toast(t("toast.notImage"));
     return;
   }
-  showProcessing(t("proc.read.step"), t("proc.read.msg"));
-
+  showProcessing(t("proc.upload.step"), t("proc.upload.msg"));
   const url = await fileToDataURL(file);
 
   let dossier;
   try {
-    dossier = await fetchDossier({ imageDataUrl: url });
+    dossier = await fetchDossier({
+      imageDataUrl: url,
+      onProgress: (phase) => {
+        if (phase === "upload") showProcessing(t("proc.upload.step"), t("proc.upload.msg"));
+        else if (phase === "write") showProcessing(t("proc.read.step"), t("proc.read.msg"));
+        else if (phase === "draw")  showProcessing(t("proc.draw.step"), t("proc.draw.msg"));
+      },
+    });
   } catch (e) {
     console.error(e);
     toast(t("toast.pressDown"));
@@ -110,17 +116,10 @@ async function handleFile(file) {
     return;
   }
   if (!dossier || !dossier.ok) {
-    if (dossier?.reason === "worker_not_configured") {
-      toast(t("toast.workerOff"));
-    } else {
-      toast(t("toast.cantRead"));
-    }
+    toast(t("toast.cantRead"));
     hideProcessing();
     return;
   }
-
-  showProcessing(t("proc.draw.step"), t("proc.draw.msg"));
-  await new Promise(r => setTimeout(r, 600)); // brief artistic pause
 
   finalizeResult({ url, dossier });
 }

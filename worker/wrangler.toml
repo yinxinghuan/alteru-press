@@ -1,7 +1,0 @@
-name = "alteru-press-fieldguide"
-main = "index.js"
-compatibility_date = "2026-01-01"
-
-# Set the secret once: wrangler secret put ANTHROPIC_API_KEY
-# Then deploy: wrangler deploy
-# Copy the worker URL into tools/field-guide/app.js → WORKER_URL.

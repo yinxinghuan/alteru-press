@@ -44,11 +44,13 @@ const STRINGS = {
     "wall.empty":   "No specimens yet. Be the first to file.",
 
     // Processing
-    "proc.read.step": "READING",
-    "proc.read.msg":  "Reading the picture…",
-    "proc.draw.step": "DRAWING",
-    "proc.draw.msg":  "Drawing the specimen card…",
-    "proc.demo.read": "Reading the demo…",
+    "proc.upload.step": "UPLOADING",
+    "proc.upload.msg":  "Sending the photograph…",
+    "proc.read.step":   "WRITING",
+    "proc.read.msg":    "Writing the dossier…",
+    "proc.draw.step":   "DRAWING",
+    "proc.draw.msg":    "Drawing the specimen card · this takes a few minutes",
+    "proc.demo.read":   "Reading the demo…",
 
     // Detail
     "detail.close":   "← Close",
@@ -152,11 +154,13 @@ const STRINGS = {
     "wall.countSuffix": "张标本",
     "wall.empty":   "还没人发。来开第一张。",
 
-    "proc.read.step": "识别中",
-    "proc.read.msg":  "识别中…",
-    "proc.draw.step": "绘制中",
-    "proc.draw.msg":  "正在画标本卡…",
-    "proc.demo.read": "正在加载 demo…",
+    "proc.upload.step": "上传中",
+    "proc.upload.msg":  "正在上传照片…",
+    "proc.read.step":   "撰写中",
+    "proc.read.msg":    "正在撰写说明书…",
+    "proc.draw.step":   "绘制中",
+    "proc.draw.msg":    "正在画标本卡 · 约需几分钟",
+    "proc.demo.read":   "正在加载 demo…",
 
     "detail.close":   "← 关闭",
     "detail.brand":   "Field Guide",
