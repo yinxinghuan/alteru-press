@@ -7,6 +7,7 @@ import * as Wall from "./wall.js";
 import { aigramCtx, fetchUser, postToFeed } from "./aigram.js";
 import { fetchDossier, DEMO_KEYS, DEMOS } from "./guide.js";
 import { DEMO_ILLUSTRATIONS, svgToDataUrl } from "./illustrations.js";
+import { t, applyI18n } from "../../shared/i18n.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -39,21 +40,24 @@ async function init() {
       if (u) {
         state.user = u;
         userChip.textContent = `@${u.handle}`;
+        userChip.removeAttribute("data-i18n");
         shareFeedBtn.classList.remove("hidden");
       } else {
-        userChip.textContent = "anon";
+        userChip.textContent = t("nav.anon");
       }
     } catch {
-      userChip.textContent = "anon";
+      userChip.textContent = t("nav.anon");
     }
   } else {
-    userChip.textContent = "anon";
+    userChip.textContent = t("nav.anon");
   }
 
-  // Demo bar
+  // Demo bar — keep object names English (decorative), wrap with localized prefix
   const demoBar = $("demoBar");
   if (demoBar) {
-    demoBar.innerHTML = DEMO_KEYS.map(k => `<a data-demo="${k}">${k}</a>`).join(" ");
+    const prefix = t("tool.cta.demoLabel");
+    demoBar.innerHTML = `<span style="color:var(--paper);opacity:.6;margin-right:6px">${prefix} ·</span>` +
+      DEMO_KEYS.map(k => `<a data-demo="${k}">${k}</a>`).join(" ");
     demoBar.addEventListener("click", (e) => {
       e.stopPropagation();
       const a = e.target.closest("[data-demo]");
@@ -89,10 +93,10 @@ async function init() {
 
 async function handleFile(file) {
   if (!file || !file.type.startsWith("image/")) {
-    toast("Not an image");
+    toast(t("toast.notImage"));
     return;
   }
-  showProcessing("READING", "Reading the picture…");
+  showProcessing(t("proc.read.step"), t("proc.read.msg"));
 
   const url = await fileToDataURL(file);
 
@@ -101,36 +105,36 @@ async function handleFile(file) {
     dossier = await fetchDossier({ imageDataUrl: url });
   } catch (e) {
     console.error(e);
-    toast("The press is unreachable");
+    toast(t("toast.pressDown"));
     hideProcessing();
     return;
   }
   if (!dossier || !dossier.ok) {
     if (dossier?.reason === "worker_not_configured") {
-      toast("Worker not deployed — tap a demo chip");
+      toast(t("toast.workerOff"));
     } else {
-      toast(`Couldn't read this — ${dossier?.reason || "unknown"}`);
+      toast(t("toast.cantRead"));
     }
     hideProcessing();
     return;
   }
 
-  showProcessing("DRAWING", "Drawing the specimen card…");
+  showProcessing(t("proc.draw.step"), t("proc.draw.msg"));
   await new Promise(r => setTimeout(r, 600)); // brief artistic pause
 
   finalizeResult({ url, dossier });
 }
 
 async function runDemo(key) {
-  showProcessing("READING", "Reading the demo…");
+  showProcessing(t("proc.read.step"), t("proc.demo.read"));
   await new Promise(r => setTimeout(r, 400));
   const dossier = await fetchDossier({ demoKey: key });
   if (!dossier || !dossier.ok) {
-    toast(`No such demo "${key}"`);
+    toast(`${t("toast.noDemo")}: "${key}"`);
     hideProcessing();
     return;
   }
-  showProcessing("DRAWING", "Drawing the specimen card…");
+  showProcessing(t("proc.draw.step"), t("proc.draw.msg"));
   await new Promise(r => setTimeout(r, 600));
   // For demo, the "original photo" is just for show; we already have illustration
   finalizeResult({ url: null, dossier });
@@ -152,7 +156,7 @@ function finalizeResult({ url, dossier }) {
   detailAuthorEl.innerHTML = `
     <div class="avatar">${escapeHtml((state.user.handle || "a")[0])}</div>
     <div class="name">@${escapeHtml(state.user.handle)}</div>
-    <div class="when">just now</div>
+    <div class="when">${escapeHtml(t("time.justNow"))}</div>
   `;
   posterWrap.innerHTML = svg;
   hideProcessing();
@@ -222,14 +226,14 @@ async function downloadPNG() {
   URL.revokeObjectURL(svgUrl);
   const blob = await new Promise(r => canvas.toBlob(r, "image/png", 0.96));
   downloadBlob(blob, `field-guide-${slug(state.currentDossier?.title)}-${Date.now()}.png`);
-  toast("PNG saved");
+  toast(t("toast.pngSaved"));
 }
 
 function downloadSVG() {
   if (!state.currentSvg) return;
   const blob = new Blob([state.currentSvg], { type: "image/svg+xml;charset=utf-8" });
   downloadBlob(blob, `field-guide-${slug(state.currentDossier?.title)}-${Date.now()}.svg`);
-  toast("SVG saved");
+  toast(t("toast.svgSaved"));
 }
 
 function downloadBlob(blob, name) {
@@ -252,28 +256,28 @@ async function publishToWall() {
   });
   state.currentEntry = entry;
   renderWall();
-  toast("Posted to the wall");
+  toast(t("toast.posted"));
 }
 
 async function shareToFeed() {
-  if (!aigramCtx.isInside) { toast("Not in Aigram"); return; }
+  if (!aigramCtx.isInside) { toast(t("toast.notAigram")); return; }
   if (!state.currentEntry) await publishToWall();
   const r = await postToFeed({
     note: `Field-guided ${state.currentDossier.title}.`,
     imageUrl: state.currentEntry?.illustration,
     specId: state.currentEntry?.id,
   });
-  toast(r.ok ? "Shared to feed" : "Couldn't share");
+  toast(r.ok ? t("toast.sharedFeed") : t("toast.shareFail"));
 }
 
 function renderWall() {
   const grid = document.getElementById("wallGrid");
   const items = Wall.getWall({ limit: 30 });
   if (!items.length) {
-    grid.innerHTML = `<div class="wall-empty">No specimens yet. Be the first to file.</div>`;
+    grid.innerHTML = `<div class="wall-empty">${escapeHtml(t("wall.empty"))}</div>`;
     return;
   }
-  $("wallCount").textContent = `${items.length} on the wall`;
+  $("wallCount").textContent = `${items.length} ${t("wall.countSuffix")}`;
   grid.innerHTML = items.map(it => {
     const illusSrc = it.illustration || (it.demoKey ? svgToDataUrl(DEMO_ILLUSTRATIONS[it.demoKey]) : "");
     const initial = (it.handle || "a")[0].toUpperCase();
@@ -318,7 +322,7 @@ function openProfile(handle) {
       return;
     } catch {}
   }
-  toast(`would open @${handle}`);
+  toast(`${t("toast.profileSim")} @${handle}`);
 }
 
 function nextIssueNo() {
@@ -366,12 +370,12 @@ function formatRelTime(ts) {
   if (!ts) return "";
   const diff = Date.now() - ts;
   const m = Math.floor(diff / 60000);
-  if (m < 1) return "just now";
-  if (m < 60) return `${m}m ago`;
+  if (m < 1) return t("time.justNow");
+  if (m < 60) return t("time.minAgo", { n: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
+  if (h < 24) return t("time.hrAgo", { n: h });
   const d = Math.floor(h / 24);
-  return `${d}d ago`;
+  return t("time.dayAgo", { n: d });
 }
 
 function formatRelDate(ts) {

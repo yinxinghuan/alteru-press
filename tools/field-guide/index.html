@@ -426,24 +426,24 @@
 <body>
 
 <nav class="navbar">
-  <a class="back" href="../../">← Press</a>
+  <a class="back" href="../../" data-i18n="nav.back">← Press</a>
   <div class="brand">Field <span class="accent">Guide</span></div>
-  <div class="me" id="userChip">anon</div>
+  <div class="me" id="userChip" data-i18n="nav.anon">anon</div>
 </nav>
 
 <main class="home">
   <section id="upload" class="shoot" tabindex="0">
     <input id="file" type="file" accept="image/*" capture="environment">
     <div class="iconring"></div>
-    <h1>Identify any ordinary thing.</h1>
-    <div class="hint">Tap to take a photograph</div>
+    <h1 data-i18n="tool.cta.title">Identify any ordinary thing.</h1>
+    <div class="hint" data-i18n="tool.cta.hint">Tap to take a photograph</div>
     <div class="demo-strip" id="demoBar"></div>
   </section>
 
   <section class="wall">
     <div class="wall-head">
-      <h3>On the wall</h3>
-      <div class="meta" id="wallCount">Recent</div>
+      <h3 data-i18n="wall.heading">On the wall</h3>
+      <div class="meta" id="wallCount" data-i18n="wall.recent">Recent</div>
     </div>
     <div id="wallGrid" class="wall-grid"></div>
   </section>
@@ -456,17 +456,17 @@
 
 <div id="detail" class="detail-overlay">
   <div class="closebar">
-    <button id="detailClose">← Close</button>
-    <span>Field Guide</span>
+    <button id="detailClose" data-i18n="detail.close">← Close</button>
+    <span data-i18n="detail.brand">Field Guide</span>
     <span></span>
   </div>
   <div class="author-bar" id="detailAuthor"></div>
   <div class="poster-wrap" id="posterWrap"></div>
   <div class="actions">
-    <button class="pink" id="publishBtn">Publish</button>
-    <button id="dlPNG">PNG</button>
-    <button class="ghost" id="dlSVG">SVG</button>
-    <button class="ghost hidden" id="shareFeedBtn">Share</button>
+    <button class="pink" id="publishBtn" data-i18n="detail.publish">Publish</button>
+    <button id="dlPNG" data-i18n="detail.png">PNG</button>
+    <button class="ghost" id="dlSVG" data-i18n="detail.svg">SVG</button>
+    <button class="ghost hidden" id="shareFeedBtn" data-i18n="detail.share">Share</button>
   </div>
 </div>
 
