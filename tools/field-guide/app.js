@@ -33,23 +33,20 @@ let state = {
 init();
 
 async function init() {
-  // Aigram identity bootstrap
+  // Aigram identity bootstrap — only show the chip when actually logged in
+  userChip.classList.add("hidden");
+  userChip.textContent = "";
   if (aigramCtx.isInside) {
     try {
       const u = await fetchUser();
       if (u) {
         state.user = u;
         userChip.textContent = `@${u.handle}`;
+        userChip.classList.remove("hidden");
         userChip.removeAttribute("data-i18n");
         shareFeedBtn.classList.remove("hidden");
-      } else {
-        userChip.textContent = t("nav.anon");
       }
-    } catch {
-      userChip.textContent = t("nav.anon");
-    }
-  } else {
-    userChip.textContent = t("nav.anon");
+    } catch {}
   }
 
   // Demo bar — keep object names English (decorative), wrap with localized prefix
@@ -144,6 +141,13 @@ function finalizeResult({ url, dossier }) {
   state.currentSvg = null; // SVG generated lazily on download click
   state.currentDataUrl = url;
   state.currentEntry = null;
+  state.publishing = false;
+  const btn = $("publishBtn");
+  if (btn) {
+    btn.disabled = false;
+    btn.style.opacity = "";
+    btn.textContent = t("detail.publish");
+  }
 
   detailAuthorEl.innerHTML = `
     <div class="avatar">${escapeHtml((state.user.handle || "a")[0])}</div>
@@ -295,17 +299,29 @@ function downloadBlob(blob, name) {
 
 async function publishToWall() {
   if (!state.currentDossier) return;
-  const entry = Wall.publish({
-    author: state.user.name,
-    handle: state.user.handle,
-    avatar: state.user.avatar,
-    illustration: state.currentDossier.illustration,
-    title: state.currentDossier.title,
-    kicker: state.currentDossier.kicker,
-  });
-  state.currentEntry = entry;
-  renderWall();
-  toast(t("toast.posted"));
+  if (state.publishing || state.currentEntry) return; // dedupe
+  state.publishing = true;
+  const btn = $("publishBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = "0.5";
+    btn.textContent = "✓ " + t("toast.posted");
+  }
+  try {
+    const entry = Wall.publish({
+      author: state.user.name,
+      handle: state.user.handle,
+      avatar: state.user.avatar,
+      illustration: state.currentDossier.illustration,
+      title: state.currentDossier.title,
+      kicker: state.currentDossier.kicker,
+    });
+    state.currentEntry = entry;
+    renderWall();
+    toast(t("toast.posted"));
+  } finally {
+    state.publishing = false;
+  }
 }
 
 async function shareToFeed() {

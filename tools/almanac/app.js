@@ -28,17 +28,19 @@ const ILLUSTRATION_BASE = new URL("img/daily/", import.meta.url).href;
 init();
 
 async function init() {
-  // Aigram identity bootstrap
+  // Aigram identity bootstrap — only show the chip when actually logged in
+  $("userChip").classList.add("hidden");
+  $("userChip").textContent = "";
   if (aigramCtx.isInside) {
     try {
       const u = await fetchUser();
       if (u) {
         state.user = u;
         $("userChip").textContent = `@${u.handle}`;
-      } else {
-        $("userChip").textContent = "anon";
+        $("userChip").classList.remove("hidden");
+        $("userChip").removeAttribute("data-i18n");
       }
-    } catch { $("userChip").textContent = "anon"; }
+    } catch {}
   }
 
   $("publishStamp").addEventListener("click", stamp);

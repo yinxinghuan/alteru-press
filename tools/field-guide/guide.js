@@ -11,6 +11,7 @@
 //   gen-image · txt2img / img2img, ~200s
 
 import { DEMO_ILLUSTRATIONS } from "./illustrations.js";
+import { locale } from "../../shared/i18n.js";
 
 const UPLOAD_URL    = "https://chat.aiwaves.tech/aigram/api/upload";
 const CHAT_URL      = "https://chat.aiwaves.tech/aigram/api/game-chat";
@@ -86,7 +87,12 @@ async function uploadDataUrl(dataUrl) {
 
 // ─── Step 2 · LLM dossier ────────────────────────────────────────────────
 
-const DOSSIER_SYSTEM_PROMPT = `You are the staff cultural anthropologist at AlterU Press, a small editorial that publishes single-page "field guides" to ordinary objects. A reader has photographed an ordinary man-made object — you don't know what it is, but you must imagine plausibly and commit. Pick something specific (a hat, a teapot, a leather satchel, a kitchen scissor, a fountain pen, etc.) and write a dossier as if you had inspected it.
+function dossierSystemPrompt(lang) {
+  const langDirective = lang === "zh"
+    ? '\n\nLANGUAGE: Write title / kicker / intro / anatomy notes / relative names+origins+notes / essay all in 中文 (simplified Chinese). Only the illustration_prompt stays English (it goes to an image model).'
+    : '\n\nLANGUAGE: Write everything in English.';
+
+  return `You are the staff cultural anthropologist at AlterU Press, a small editorial that publishes single-page "field guides" to ordinary objects. A reader has photographed an ordinary man-made object — you don't know what it is, but you must imagine plausibly and commit. Pick something specific (a hat, a teapot, a leather satchel, a kitchen scissor, a fountain pen, etc.) and write a dossier as if you had inspected it.
 
 Output STRICT JSON only — no markdown, no preamble, exactly this shape:
 {
@@ -100,24 +106,26 @@ Output STRICT JSON only — no markdown, no preamble, exactly this shape:
 }
 
 Rules:
-- title: a noun phrase, the imagined subject. lower case. e.g. "a panama hat" / "a clay teapot" / "a leather satchel"
-- kicker: 4-word category label in small caps. e.g. "WOVEN STRAW HEADWEAR" / "DOMESTIC CERAMICS"
+- title: a short noun phrase, the imagined subject
+- kicker: 4-word category label in small caps
 - intro: 1-2 sentences, ≤ 30 words, plain observational tone
 - anatomy: 4-6 entries, each note 8-14 words
 - relatives: 6-8 cross-cultural variants of the same category (Italian fedora next to Persian turban next to Vietnamese non), each note 10-16 words
 - essay: 2-3 sentences, 50-70 words, why we make this kind of object, cultural reflection
-- illustration_prompt: a single sentence describing the object as a 19th c. natural history specimen card to be drawn from the user's photo as visual reference. e.g. "vintage 19th c. natural history specimen card of a panama hat on cream paper, ink line with watercolor wash, labeled parts (crown, brim, ribbon, weave), museum catalogue style"
+- illustration_prompt: ALWAYS English. A single sentence describing the object as a 19th c. natural history specimen card to be drawn from the user's photo as visual reference. e.g. "vintage 19th c. natural history specimen card of a panama hat on cream paper, ink line with watercolor wash, labeled parts (crown, brim, ribbon, weave), museum catalogue style"
 
-Tone: editorial, Wallpaper / Cabinet Magazine. Avoid "amazing" / "iconic" / "rich history". No emojis.`;
+Tone: editorial, Wallpaper / Cabinet Magazine. Avoid "amazing" / "iconic" / "rich history". No emojis.` + langDirective;
+}
 
 async function composeDossierViaLLM() {
+  const lang = locale === "zh" ? "zh" : "en";
   const userMsg = `A reader just photographed an ordinary man-made object. Imagine what it might be and write the dossier. Return JSON only. seed:${Math.random().toString(36).slice(2, 8)}`;
   const res = await fetch(CHAT_URL, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
       messages: [
-        { role: "system", content: DOSSIER_SYSTEM_PROMPT },
+        { role: "system", content: dossierSystemPrompt(lang) },
         { role: "user",   content: userMsg },
       ],
     }),
