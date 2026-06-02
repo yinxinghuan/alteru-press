@@ -1,0 +1,6 @@
+name = "alteru-press-readingnote"
+main = "index.js"
+compatibility_date = "2026-01-01"
+
+# Set the secret once: wrangler secret put ANTHROPIC_API_KEY
+# Update tools/image-spec/app.js → READING_NOTE_ENDPOINT once deployed.
