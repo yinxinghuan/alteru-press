@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image Spec — AlterU Press</title>
-<meta name="description" content="Drop in any picture. Get back a magazine spec sheet — dominant colours, brightness curve, composition, color temperature.">
+<title>Field Guide — AlterU Press</title>
+<meta name="description" content="Photograph something. The press identifies it, names its parts, finds its cousins across the world, and types up a field guide.">
 <meta name="theme-color" content="#F5B1C7">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23F5B1C7'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-family='Montserrat,sans-serif' font-weight='700' font-size='56' fill='%237700A1'%3EP%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
@@ -28,10 +28,7 @@
   .topbar .left { display: flex; gap: 18px; align-items: baseline; }
   .topbar .crumb { color: var(--mute); }
 
-  .head {
-    padding: 48px 0 28px;
-    border-bottom: 1px solid var(--ink);
-  }
+  .head { padding: 48px 0 28px; border-bottom: 1px solid var(--ink); }
   .head .eyebrow {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
@@ -54,7 +51,7 @@
     font-size: 18px;
     line-height: 1.5;
     color: var(--ink-soft);
-    max-width: 640px;
+    max-width: 660px;
   }
   .head .stamp {
     margin-top: 22px;
@@ -67,11 +64,7 @@
     gap: 22px;
     flex-wrap: wrap;
   }
-  .head .stamp span::before {
-    content: "·";
-    margin-right: 18px;
-    color: var(--line);
-  }
+  .head .stamp span::before { content: "·"; margin-right: 18px; color: var(--line); }
   .head .stamp span:first-child::before { display: none; }
 
   .stage { padding: 48px 0 80px; }
@@ -84,10 +77,7 @@
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
   }
-  .dropzone:hover, .dropzone.hover {
-    background: var(--white);
-    border-color: var(--purple);
-  }
+  .dropzone:hover, .dropzone.hover { background: var(--white); border-color: var(--purple); }
   .dropzone .big {
     font-family: 'Playfair Display', serif;
     font-style: italic;
@@ -104,20 +94,30 @@
   }
   .dropzone input { display: none; }
 
-  .processing {
+  .demo-bar {
+    margin-top: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute);
     text-align: center;
-    padding: 80px 32px;
   }
+  .demo-bar a {
+    color: var(--purple);
+    border-bottom: 1px solid var(--purple);
+    margin: 0 2px;
+  }
+  .demo-bar::before { content: "or try a demo · "; color: var(--mute); }
+
+  .processing { text-align: center; padding: 80px 32px; }
   .processing .pulse {
     font-family: 'Playfair Display', serif;
     font-style: italic;
     font-size: 28px;
     animation: pulse 1.3s ease-in-out infinite;
   }
-  @keyframes pulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 1; }
-  }
+  @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
   .result {
     display: grid;
@@ -132,11 +132,7 @@
     overflow: hidden;
     box-shadow: 6px 6px 0 var(--ink);
   }
-  .result .poster-wrap svg {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
+  .result .poster-wrap svg { display: block; width: 100%; height: auto; }
   .result .sidebar h3 {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10.5px;
@@ -207,13 +203,18 @@
     object-fit: cover;
     display: block;
   }
-  .wall-card .colors {
-    display: flex;
-    height: 10px;
-    margin: 10px 0 8px;
-    border: 1px solid var(--ink);
+  .wall-card .title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 17px;
+    line-height: 1.2;
+    margin: 12px 0 6px;
+    color: var(--ink);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .wall-card .colors span { display: block; height: 100%; }
   .wall-card .meta {
     display: flex;
     justify-content: space-between;
@@ -222,6 +223,12 @@
     letter-spacing: 0.1em;
     color: var(--mute);
     text-transform: uppercase;
+  }
+  .wall-card .meta span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .wall-empty {
     border: 1px dashed var(--line);
@@ -280,19 +287,19 @@
     <div class="left">
       <a href="../../">AlterU Press</a>
       <span class="crumb">→ Issue 01</span>
-      <span class="crumb">→ Image Spec</span>
+      <span class="crumb">→ Field Guide</span>
     </div>
     <div class="right" id="userChip">anon · independent</div>
   </nav>
 
   <header class="head">
-    <div class="eyebrow">Tool 01 · Visual</div>
-    <h1>An <span class="italic">Image</span>, Specified.</h1>
-    <p class="lede">Drop in a picture. The press measures it — colour, brightness, edges, temperature, focal point — and types up a spec sheet you could pin to a wall.</p>
+    <div class="eyebrow">Tool 01 · Cultural</div>
+    <h1>A <span class="italic">Picture</span>, Guided.</h1>
+    <p class="lede">Photograph the most ordinary thing in the room. The press identifies it, names its parts, finds its cousins in eight cultures, and types up a one-page field guide. Suitable for framing, suitable for the back of a magazine.</p>
     <div class="stamp">
-      <span>Client-side analysis</span>
-      <span>+ AI reading note</span>
-      <span>~6 seconds</span>
+      <span>Vision: Claude</span>
+      <span>Cultural cross-reference</span>
+      <span>~10 seconds</span>
       <span>Printable</span>
     </div>
   </header>
@@ -301,25 +308,26 @@
 
     <section id="upload" class="dropzone" tabindex="0">
       <input id="file" type="file" accept="image/*">
-      <div class="big">Drop a picture here<br><span style="color:var(--mute);font-style:normal;font-size:18px;">or click anywhere</span></div>
-      <div class="small">JPG · PNG · WEBP · everything stays on your device</div>
+      <div class="big">Drop a photograph here<br><span style="color:var(--mute);font-style:normal;font-size:18px;">a hat, a teapot, a bag, a chair — anything held or worn</span></div>
+      <div class="small">JPG · PNG · WEBP · the photo never leaves your country it just visits a model</div>
     </section>
+    <div class="demo-bar" id="demoBar"></div>
 
     <section id="processing" class="processing hidden">
-      <div class="pulse">Measuring the picture…</div>
+      <div class="pulse" id="processingMsg">Reading the picture…</div>
     </section>
 
     <section id="result" class="result hidden">
       <div class="poster-wrap" id="posterWrap"></div>
       <aside class="sidebar">
         <h3>Take it with you</h3>
-        <p>Download the spec sheet as an image, share it to the feed, or post it to the wall.</p>
+        <p>Download the field guide, post it to the wall, or share it to the feed.</p>
         <div class="actions">
           <button class="btn" id="dlPNG">Download PNG</button>
           <button class="btn ghost" id="dlSVG">Download SVG</button>
           <button class="btn pink" id="publishBtn">Publish to wall</button>
           <button class="btn ghost hidden" id="shareFeedBtn">Share to feed</button>
-          <button class="btn ghost" id="resetBtn">Spec another</button>
+          <button class="btn ghost" id="resetBtn">File another</button>
         </div>
         <div class="meta" id="readout"></div>
       </aside>
@@ -330,14 +338,14 @@
   <section class="wall">
     <div class="wall-head">
       <h3>The Wall</h3>
-      <div class="meta">Recent dispatches</div>
+      <div class="meta">Recent specimens</div>
     </div>
     <div id="wallGrid" class="wall-grid"></div>
   </section>
 
   <footer class="colophon">
-    <div>© 2026 AlterU Press · Issue 01 — Image Spec</div>
-    <div>v1.0 · Client-side · Set in Playfair · Montserrat · JetBrains Mono</div>
+    <div>© 2026 AlterU Press · Issue 01 — Field Guide</div>
+    <div>v2.0 · Vision: Claude · Set in Playfair · Montserrat · JetBrains Mono</div>
   </footer>
 
 </div>

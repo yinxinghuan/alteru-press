@@ -1,14 +1,16 @@
-// AlterU Press · Image Spec · app glue
+// AlterU Press · Field Guide · app glue
+// Photo in → Claude vision dossier (via Worker) → Editorial poster.
 
-import { analyzeImage } from "./analyze.js";
 import { buildPosterSVG, POSTER_W, POSTER_H } from "./poster.js";
 import * as Wall from "./wall.js";
 import { aigramCtx, fetchUser, postToFeed } from "./aigram.js";
+import { fetchDossier, DEMO_KEYS } from "./guide.js";
 
 const $ = (id) => document.getElementById(id);
 const dropzone = $("upload");
 const fileInput = $("file");
 const processing = $("processing");
+const processingMsg = $("processingMsg");
 const result = $("result");
 const posterWrap = $("posterWrap");
 const readout = $("readout");
@@ -17,15 +19,17 @@ const shareFeedBtn = $("shareFeedBtn");
 
 let state = {
   user: { id: null, name: "anonymous", handle: "anonymous" },
-  currentSpec: null,
+  currentDossier: null,
   currentSvg: null,
   currentDataUrl: null,
+  currentImg: null,
   currentEntry: null,
 };
 
 init();
 
 async function init() {
+  // Aigram identity bootstrap
   if (aigramCtx.isInside) {
     userChip.textContent = "syncing aigram…";
     try {
@@ -44,6 +48,14 @@ async function init() {
     userChip.textContent = "anon · independent";
   }
 
+  // Demo mode: ?demo=hat | teapot | satchel
+  const qsDemo = new URLSearchParams(location.search).get("demo");
+  if (qsDemo) {
+    runDemo(qsDemo);
+    return;
+  }
+
+  // Wire up dropzone
   dropzone.addEventListener("click", () => fileInput.click());
   dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("hover"); });
   dropzone.addEventListener("dragleave", () => dropzone.classList.remove("hover"));
@@ -57,15 +69,17 @@ async function init() {
     const f = e.target.files && e.target.files[0];
     if (f) handleFile(f);
   });
-  dropzone.addEventListener("paste", (e) => {
-    const f = [...(e.clipboardData?.files || [])][0];
-    if (f) handleFile(f);
-  });
   document.addEventListener("paste", (e) => {
     if (!result.classList.contains("hidden")) return;
     const f = [...(e.clipboardData?.files || [])][0];
     if (f) handleFile(f);
   });
+
+  // Demo chip(s)
+  const demoBar = $("demoBar");
+  if (demoBar) {
+    demoBar.innerHTML = DEMO_KEYS.map(k => `<a href="?demo=${k}">${k}</a>`).join(" · ");
+  }
 
   $("dlPNG").addEventListener("click", downloadPNG);
   $("dlSVG").addEventListener("click", downloadSVG);
@@ -81,58 +95,82 @@ async function handleFile(file) {
     toast("That doesn't look like an image.");
     return;
   }
-  showProcessing();
+  showProcessing("Identifying the subject…");
 
   const url = await fileToDataURL(file);
   const img = await loadImage(url);
 
-  await new Promise(r => setTimeout(r, 80));
-
-  let spec;
+  let dossier;
   try {
-    spec = await analyzeImage(img);
+    dossier = await fetchDossier({ imageDataUrl: url });
   } catch (e) {
     console.error(e);
-    toast("Couldn't analyse this image.");
+    toast("The press is unreachable.");
+    resetView();
+    return;
+  }
+  if (!dossier || !dossier.ok) {
+    if (dossier?.reason === "worker_not_configured") {
+      toast("Worker not deployed yet — try a /?demo=hat link");
+    } else {
+      toast(dossier?.reason ? `Couldn't read this — ${dossier.reason}` : "Couldn't read this picture.");
+    }
     resetView();
     return;
   }
 
-  const note = generateReadingNote(spec);
-  const svg = buildPosterSVG(spec, url, {
+  finalizeResult({ url, img, dossier });
+}
+
+async function runDemo(key) {
+  showProcessing("Pulling a demo dossier…");
+  const dossier = await fetchDossier({ demoKey: key });
+  if (!dossier || !dossier.ok) {
+    toast(`No such demo "${key}"`);
+    resetView();
+    return;
+  }
+  // Use a sampled stock image for the demo
+  const url = `https://picsum.photos/seed/alteru-${key}/1200/900`;
+  const img = await loadImage(url);
+  const dataUrl = await urlToDataUrl(url);
+  finalizeResult({ url: dataUrl, img, dossier });
+}
+
+function finalizeResult({ url, img, dossier }) {
+  const svg = buildPosterSVG(dossier, url, {
     author: state.user.handle,
-    note,
+    imgW: img.naturalWidth,
+    imgH: img.naturalHeight,
     date: new Date().toISOString().slice(0, 10).replace(/-/g, "."),
     issueNo: nextIssueNo(),
   });
 
-  state.currentSpec = spec;
+  state.currentDossier = dossier;
   state.currentSvg = svg;
   state.currentDataUrl = url;
-  state.currentNote = note;
+  state.currentImg = img;
   state.currentEntry = null;
 
-  showResult(svg, spec);
+  showResult(svg, dossier);
 }
 
-function showProcessing() {
+function showProcessing(msg) {
   dropzone.classList.add("hidden");
   result.classList.add("hidden");
   processing.classList.remove("hidden");
+  if (processingMsg) processingMsg.textContent = msg || "Reading the picture…";
 }
-function showResult(svg, spec) {
+function showResult(svg, dossier) {
   dropzone.classList.add("hidden");
   processing.classList.add("hidden");
   result.classList.remove("hidden");
   posterWrap.innerHTML = svg;
   readout.innerHTML = `
-    <b>${spec.dimensions.w} × ${spec.dimensions.h}</b> · ${spec.dimensions.aspect}<br>
-    Brightness · <b>${spec.brightness.label}</b> (${spec.brightness.avg})<br>
-    Temperature · <b>${spec.temperature.label}</b> · ${spec.temperature.warm}/${spec.temperature.cool}<br>
-    Edges · <b>${spec.edges.label}</b> · ${spec.edges.score}/10<br>
-    Saturation · <b>${spec.saturation.label}</b> · ${spec.saturation.avg}<br>
-    Focal · <b>${spec.focal.label}</b><br>
-    Analysed in <b>${spec.elapsed}ms</b>
+    <b>${escapeHtml(dossier.title)}</b><br>
+    <span style="color:var(--mute)">${escapeHtml(dossier.kicker || "")}</span><br>
+    <span style="color:var(--mute)">${(dossier.anatomy || []).length} parts · ${(dossier.relatives || []).length} relatives</span>
+    ${dossier._source === "demo" ? `<br><span style="color:var(--pink-strong);font-weight:600">DEMO MODE</span>` : ""}
   `;
 }
 function resetView() {
@@ -141,9 +179,10 @@ function resetView() {
   result.classList.add("hidden");
   posterWrap.innerHTML = "";
   fileInput.value = "";
-  state.currentSpec = null;
+  state.currentDossier = null;
   state.currentSvg = null;
   state.currentDataUrl = null;
+  state.currentImg = null;
   state.currentEntry = null;
 }
 
@@ -153,7 +192,6 @@ async function downloadPNG() {
   const svgBlob = new Blob([state.currentSvg], { type: "image/svg+xml;charset=utf-8" });
   const svgUrl = URL.createObjectURL(svgBlob);
   const img = await loadImage(svgUrl);
-
   const canvas = document.createElement("canvas");
   canvas.width = POSTER_W * scale;
   canvas.height = POSTER_H * scale;
@@ -163,17 +201,15 @@ async function downloadPNG() {
   ctx.fillRect(0, 0, POSTER_W, POSTER_H);
   ctx.drawImage(img, 0, 0, POSTER_W, POSTER_H);
   URL.revokeObjectURL(svgUrl);
-
   const blob = await new Promise(r => canvas.toBlob(r, "image/png", 0.96));
-  const name = `image-spec-${Date.now()}.png`;
-  downloadBlob(blob, name);
+  downloadBlob(blob, `field-guide-${slug(state.currentDossier?.title)}-${Date.now()}.png`);
   toast("PNG downloaded");
 }
 
 function downloadSVG() {
   if (!state.currentSvg) return;
   const blob = new Blob([state.currentSvg], { type: "image/svg+xml;charset=utf-8" });
-  downloadBlob(blob, `image-spec-${Date.now()}.svg`);
+  downloadBlob(blob, `field-guide-${slug(state.currentDossier?.title)}-${Date.now()}.svg`);
   toast("SVG downloaded");
 }
 
@@ -181,21 +217,19 @@ function downloadBlob(blob, name) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url; a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 async function publishToWall() {
-  if (!state.currentSpec) return;
+  if (!state.currentDossier) return;
   const thumb = await makeThumb(state.currentDataUrl, 360);
   const entry = Wall.publish({
     author: state.user.name,
     handle: state.user.handle,
     thumb,
-    palette: state.currentSpec.palette,
-    aspect: state.currentSpec.dimensions.aspect,
+    title: state.currentDossier.title,
+    kicker: state.currentDossier.kicker,
   });
   state.currentEntry = entry;
   renderWall();
@@ -203,15 +237,10 @@ async function publishToWall() {
 }
 
 async function shareToFeed() {
-  if (!aigramCtx.isInside) {
-    toast("Not in Aigram");
-    return;
-  }
-  if (!state.currentEntry) {
-    await publishToWall();
-  }
+  if (!aigramCtx.isInside) { toast("Not in Aigram"); return; }
+  if (!state.currentEntry) await publishToWall();
   const r = await postToFeed({
-    note: state.currentNote || "Filed an image spec.",
+    note: `Field-guided ${state.currentDossier.title}.`,
     imageUrl: state.currentEntry?.thumb,
     specId: state.currentEntry?.id,
   });
@@ -222,43 +251,19 @@ function renderWall() {
   const grid = document.getElementById("wallGrid");
   const items = Wall.getWall({ limit: 24 });
   if (!items.length) {
-    grid.innerHTML = `<div class="wall-empty">No dispatches yet. Be the first to file.</div>`;
+    grid.innerHTML = `<div class="wall-empty">No specimens on display yet. Be the first to file.</div>`;
     return;
   }
   grid.innerHTML = items.map(it => `
     <div class="wall-card" data-id="${it.id}">
       ${it.thumb ? `<img class="thumb" src="${it.thumb}" alt="">` : `<div class="thumb"></div>`}
-      <div class="colors">
-        ${it.palette.map(c => `<span style="flex:${c.pct};background:${c.hex}"></span>`).join("")}
-      </div>
+      <div class="title">${escapeHtml(it.title || "untitled")}</div>
       <div class="meta">
         <span>@${escapeHtml(it.handle).slice(0, 14)}</span>
-        <span>${it.aspect}</span>
+        <span>${escapeHtml((it.kicker || "").split(" ").slice(0, 2).join(" "))}</span>
       </div>
     </div>
   `).join("");
-}
-
-function generateReadingNote(spec) {
-  const top = spec.palette[0];
-  const second = spec.palette.slice(1).find(c => c.name !== top?.name);
-  const adj = pick([
-    "Quiet", "Restless", "Composed", "Punchy", "Tender", "Crisp", "Hushed",
-    "Slow", "Brash", "Considered", "Tilted", "Patient"
-  ]);
-  const mood =
-    spec.brightness.label === "dim" ? "after hours" :
-    spec.brightness.label === "blown" ? "midday glare" :
-    spec.temperature.label === "warm" ? "an afternoon" :
-    spec.temperature.label === "cool" ? "an evening" :
-    "an interval";
-  const tone = top ? top.name : "untitled";
-  const counter = second ? `against ${second.name}` : "alone";
-  return `${adj} · ${tone} ${counter}, read at ${mood}.`;
-}
-
-function pick(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
 }
 
 function nextIssueNo() {
@@ -286,6 +291,16 @@ function loadImage(src) {
   });
 }
 
+async function urlToDataUrl(url) {
+  const res = await fetch(url);
+  const blob = await res.blob();
+  return new Promise((resolve) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.readAsDataURL(blob);
+  });
+}
+
 async function makeThumb(dataUrl, maxSize) {
   const img = await loadImage(dataUrl);
   const scale = Math.min(1, maxSize / Math.max(img.naturalWidth, img.naturalHeight));
@@ -303,9 +318,13 @@ function toast(msg) {
   t.textContent = msg;
   t.classList.add("show");
   clearTimeout(toast._t);
-  toast._t = setTimeout(() => t.classList.remove("show"), 1800);
+  toast._t = setTimeout(() => t.classList.remove("show"), 2200);
 }
 
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+}
+
+function slug(s) {
+  return String(s || "untitled").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }

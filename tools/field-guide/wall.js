@@ -1,7 +1,7 @@
-// AlterU Press · Image Spec · Wall (v1: localStorage)
+// AlterU Press · Field Guide · Wall (v1: localStorage)
 // API designed so swapping in a backend later is a 2-line change.
 
-const STORAGE_KEY = "alteru-press:image-spec:wall:v1";
+const STORAGE_KEY = "alteru-press:field-guide:wall:v1";
 const MAX_LOCAL = 60;
 
 function read() {
@@ -28,8 +28,8 @@ export function publish(entry) {
     author: entry.author || "anonymous",
     handle: entry.handle || "anonymous",
     thumb: entry.thumb || null,
-    palette: (entry.palette || []).slice(0, 5).map(c => ({ hex: c.hex, pct: c.pct })),
-    aspect: entry.aspect || "?",
+    title: entry.title || "untitled",
+    kicker: entry.kicker || "",
     likes: 0,
   };
   const cur = read();

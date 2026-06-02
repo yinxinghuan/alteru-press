@@ -1,57 +1,61 @@
-# Reading-note Worker
+# Field Guide Worker
 
-Cloudflare Worker that calls Claude vision and returns the editorial reading note + scene/mood/object data for one image.
+Cloudflare Worker that calls Claude vision and returns a structured dossier for the main object in a photograph.
 
 ## Deploy
 
 ```sh
 cd worker
+npm install -g wrangler        # one time
+wrangler login                  # one time
 wrangler secret put ANTHROPIC_API_KEY
 wrangler deploy
 ```
 
-You'll get a URL like `https://alteru-press-readingnote.<your-account>.workers.dev`.
+You'll get a URL like `https://alteru-press-fieldguide.<your-account>.workers.dev`.
 
 ## Wire frontend
 
-In `tools/image-spec/app.js`, swap the rule-based `generateReadingNote` for a call to the Worker:
+In `tools/field-guide/app.js`, set:
 
 ```js
-const READING_NOTE_ENDPOINT = "https://alteru-press-readingnote.<your-account>.workers.dev/analyze";
-
-async function generateReadingNote(spec, dataUrl) {
-  try {
-    const imageBase64 = dataUrl.split(",")[1];
-    const mime = dataUrl.match(/^data:([^;]+);/)?.[1] || "image/jpeg";
-    const r = await fetch(READING_NOTE_ENDPOINT, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ imageBase64, mime, palette: spec.palette }),
-    });
-    const data = await r.json();
-    if (data.note) return data.note;
-  } catch (e) { console.warn("reading note fallback", e); }
-  return ruleBasedNote(spec);
-}
+const WORKER_URL = "https://alteru-press-fieldguide.<your-account>.workers.dev";
 ```
 
-(Keep the existing rule-based function as `ruleBasedNote` for offline fallback.)
+Commit + push. Pages rebuilds automatically.
 
 ## Cost
 
-~$0.005 per image with `claude-sonnet-4-6` + ~10 KB image input.
+~$0.01 per photo with `claude-sonnet-4-6` (≈1.2 KB input image base64 + ~1k output tokens).
 
-## Schema
+## Returned schema
 
-Returns:
 ```json
 {
-  "note": "Quiet, near-window, two cups uncleared.",
-  "scene": "kitchen, morning",
-  "mood": "still",
-  "objects": [
-    { "name": "cup", "count": 2 },
-    { "name": "chair", "count": 1 }
-  ]
+  "ok": true,
+  "title": "a panama hat",
+  "kicker": "WOVEN STRAW HEADWEAR",
+  "intro": "Hand-plaited from young toquilla straw on Ecuador's coast. The grosgrain ribbon is fresh, the brim still holds its curl.",
+  "anatomy": [
+    { "name": "crown", "note": "the dome above the brim; here, blocked round and creased optimo-style" },
+    { "name": "brim",  "note": "flat-curled, about 7 cm; shades eyes without obstructing peripheral view" },
+    { "name": "ribbon","note": "single bow at the band; black grosgrain; replaceable, often by tailor" },
+    { "name": "weave", "note": "fino grade; closer plait equals lighter, finer, more expensive" }
+  ],
+  "relatives": [
+    { "name": "fedora", "origin": "Italy / US, 1890s",     "note": "felt, soft crown, brim pinch; the jazz-era city hat" },
+    { "name": "beret",  "origin": "French Basque",          "note": "round wool, flat, no brim; military and folk reuse" },
+    { "name": "bowler", "origin": "England, 1849",          "note": "hard felt; first worn by gamekeepers, then clerks" },
+    { "name": "stetson","origin": "American West, 1865",    "note": "wide brim, weatherproofed; cattle-trail provenance" },
+    { "name": "turban", "origin": "Persia / South Asia",    "note": "wound cloth; status, devotion, climate; not just one form" },
+    { "name": "tarboosh","origin":"Maghreb / Ottoman",      "note": "cylindrical red felt; civil servant signal under Ottoman rule" }
+  ],
+  "essay": "We make hats to negotiate with the sky. Sun, rain, cold, holy days, court. The straw braided here would not look out of place in a 1920s race-day photograph or a present-day mango orchard — which is the trick of a great hat: it survives across centuries by quietly doing one job well."
 }
 ```
+
+## Errors
+
+- `{"ok": false, "reason": "..."}` — model couldn't find a clear subject.
+- `{"error": "anthropic", "detail": "..."}` — API call failed.
+- `{"error": "bad_model_output", "raw": "..."}` — model returned non-JSON.

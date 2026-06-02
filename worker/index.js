@@ -1,48 +1,69 @@
-// AlterU Press · reading-note Worker
-// Cloudflare Worker that calls Anthropic Claude vision to produce a short
-// editorial reading note + object/mood data for an image.
+// AlterU Press · Field Guide Worker
+// Cloudflare Worker that calls Anthropic Claude vision and returns a structured
+// "field guide" dossier for the main object in a photo.
 //
 // Env vars (set via `wrangler secret put`):
 //   ANTHROPIC_API_KEY      Anthropic API key
 //
-// Frontend posts: { imageBase64, mime, palette: [{hex, name, pct}] }
-// Worker returns: { note, scene, mood, objects: [{name, count}] }
+// Frontend posts: { imageBase64, mime }
+// Worker returns: see SCHEMA below.
 
 const MODEL = "claude-sonnet-4-6";
-const MAX_TOKENS = 400;
+const MAX_TOKENS = 1400;
 
-const SYSTEM_PROMPT = `You are the editor of AlterU Press, a small magazine that prints "spec sheets" for images. For every picture filed, you produce:
+const SYSTEM_PROMPT = `You are the staff cultural anthropologist at AlterU Press, a small editorial that publishes single-page "field guides" to ordinary objects. A reader has sent in a photograph. Your job:
 
-1. A single-sentence "reading note" — no more than 14 words. Tone: a quiet, observant editorial caption. Specific, not generic. Avoid adjective stacks. Avoid the words "image" / "photo" / "picture".
-2. A short scene label (2-4 words). E.g. "kitchen, morning" / "subway platform".
-3. A mood label (1-2 words). E.g. "still" / "anxious bright" / "domestic".
-4. An objects list — up to 6 entries, each with a name and an integer count. Only confidently visible things.
+1. Identify the single most interesting MAN-MADE OBJECT in the picture. Ignore people, plants, sky, food unless they ARE the subject. If the picture is mostly a person, identify their most distinctive worn / held object (a hat, a bag, a coat). If nothing is identifiable, return {"ok": false, "reason": "..."}.
 
-Reply with ONLY valid JSON matching this schema, no preamble:
-{"note": string, "scene": string, "mood": string, "objects": [{"name": string, "count": integer}]}`;
+2. Write a short editorial dossier with the following structure:
+
+  - title           — a noun phrase, the subject name. lower case. e.g. "a panama hat" / "a clay teapot" / "a leather satchel"
+  - kicker          — 4-word category label, e.g. "WOVEN STRAW HEADWEAR" / "DOMESTIC CERAMICS" / "TRAVEL BAGS"
+  - intro           — 1-2 sentences. specific, observational. plain English. mention what makes THIS one particular. 30 words max.
+  - anatomy         — 4-6 named parts of the object. each: { name (1-3 words), note (8-14 words explaining its purpose / craft) }
+  - relatives       — 6-8 cultural variants of the object across world / history. each: { name (1-3 words), origin (region + rough era), note (10-16 words on its difference / context) }. spread the cultures — don't list 6 European variants.
+  - essay           — 2-3 sentence closing reflection on what this category of object MEANS culturally. why humans make them. status / function / ritual / climate. 50-70 words. essayist tone, not encyclopedic.
+
+3. Reply with ONLY a single JSON object, no markdown, no preamble:
+
+{
+  "ok": true,
+  "title": string,
+  "kicker": string,
+  "intro": string,
+  "anatomy": [{"name": string, "note": string}],
+  "relatives": [{"name": string, "origin": string, "note": string}],
+  "essay": string
+}
+
+Tone notes:
+- Avoid "amazing", "iconic", "rich history". Avoid adjective stacks.
+- No emojis. No bullet points in prose fields.
+- It's OK to admit "probably" or "likely" if uncertain about the specific origin of THIS object.
+- Anatomy notes should sound like a field manual ("flat-curled brim, ≈7cm; shades the eyes").
+- Relatives should feel cross-cultural and curious (a bowler next to a turban next to a fez).
+- Essay should sound like Wallpaper / Cabinet Magazine, not a textbook.`;
 
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") return cors(new Response(null, { status: 204 }));
     const url = new URL(request.url);
-    if (url.pathname !== "/analyze" || request.method !== "POST") {
-      return cors(json({ error: "POST /analyze" }, 404));
+    if (url.pathname !== "/dossier" || request.method !== "POST") {
+      return cors(json({ error: "POST /dossier" }, 404));
     }
 
     let body;
     try { body = await request.json(); }
     catch { return cors(json({ error: "invalid json" }, 400)); }
 
-    const { imageBase64, mime = "image/jpeg", palette = [] } = body || {};
+    const { imageBase64, mime = "image/jpeg" } = body || {};
     if (!imageBase64) return cors(json({ error: "missing imageBase64" }, 400));
-
-    const paletteHint = palette.slice(0, 5).map(c => `${c.hex} (${c.name}, ${c.pct}%)`).join(", ");
 
     const messages = [{
       role: "user",
       content: [
         { type: "image", source: { type: "base64", media_type: mime, data: imageBase64 } },
-        { type: "text", text: `Picture filed for analysis. Dominant colours: ${paletteHint || "n/a"}.\n\nReturn the JSON.` },
+        { type: "text", text: "Photo filed for the Field Guide. Return the JSON dossier." },
       ],
     }];
 
