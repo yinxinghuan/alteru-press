@@ -2,188 +2,158 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Field Guide — AlterU Press</title>
-<meta name="description" content="Photograph something. The press identifies it, names its parts, finds its cousins across the world, and types up a field guide.">
-<meta name="theme-color" content="#F5B1C7">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>Field Guide</title>
+<meta name="theme-color" content="#0F0F0F">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23F5B1C7'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-family='Montserrat,sans-serif' font-weight='700' font-size='56' fill='%237700A1'%3EP%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../shared/brand.css">
 <style>
-  body { background: var(--paper); }
+  :root {
+    --pink: #F5B1C7;
+    --pink-strong: #E8709A;
+    --purple: #7700A1;
+    --ink: #0F0F0F;
+    --ink-soft: #2A2A2A;
+    --mute: #6B6B6B;
+    --line: #D9D9D9;
+    --paper: #F5F2EC;
+    --paper-2: #FAF8F3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 
-  .topbar {
-    padding: 18px 0 14px;
+  /* ───────────────── Top nav (very thin) ───────────────── */
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--paper);
     border-bottom: 1px solid var(--ink);
+    padding: 12px 16px;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: baseline;
-    gap: 10px;
+    gap: 12px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
-  .topbar a { border: none; color: var(--ink); }
-  .topbar a:active { color: var(--purple); }
-  .topbar .left { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
-  .topbar .crumb { color: var(--mute); }
-  .topbar .right {
-    color: var(--mute);
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-align: right;
+  .navbar .back {
+    color: var(--ink);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .navbar .back:active { color: var(--purple); }
+  .navbar .brand {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: var(--ink);
+  }
+  .navbar .brand .accent { color: var(--pink-strong); }
+  .navbar .me { color: var(--mute); }
+
+  /* ───────────────── Home screen (instant-use) ───────────────── */
+  .home {
+    padding: 24px 16px 40px;
   }
 
-  .head { padding: 32px 0 22px; border-bottom: 1px solid var(--ink); }
-  .head .eyebrow {
+  .shoot {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 28px;
+    padding: 56px 24px 28px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .shoot:active { background: var(--ink-soft); }
+  .shoot .iconring {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: 3px solid var(--paper);
+    background: transparent;
+    margin: 0 auto 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .shoot .iconring::before {
+    content: "";
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: var(--paper);
+  }
+  .shoot h1 {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    color: var(--paper);
+  }
+  .shoot .hint {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10.5px;
     letter-spacing: 0.16em;
-    color: var(--purple);
     text-transform: uppercase;
+    color: var(--pink);
+    margin-bottom: 22px;
   }
-  .head h1 {
-    font-family: 'Playfair Display', serif;
-    font-weight: 900;
-    font-size: 44px;
-    line-height: 0.98;
-    letter-spacing: -0.025em;
-    margin-top: 12px;
-  }
-  .head h1 .italic { font-style: italic; color: var(--pink-strong); }
-  .head .lede {
-    margin-top: 16px;
-    font-family: 'Playfair Display', serif;
-    font-size: 16px;
-    line-height: 1.5;
-    color: var(--ink-soft);
-  }
-  .head .stamp {
+  .shoot .demo-strip {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
     margin-top: 18px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
-    letter-spacing: 0.12em;
-    color: var(--mute);
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    line-height: 1.7;
   }
-  .head .stamp span:not(:last-child)::after { content: " · "; color: var(--line); }
+  .shoot .demo-strip a {
+    color: var(--pink);
+    border: 1px solid var(--pink);
+    padding: 6px 10px;
+    border-radius: 20px;
+    text-decoration: none;
+  }
+  .shoot .demo-strip a:active { background: var(--pink); color: var(--ink); }
+  .shoot input { display: none; }
 
-  .stage { padding: 28px 0 48px; }
-
-  .dropzone {
-    border: 2px dashed var(--ink);
-    background: var(--paper-2);
-    padding: 48px 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-  }
-  .dropzone:active { background: var(--white); border-color: var(--purple); }
-  .dropzone .big {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-size: 24px;
-    line-height: 1.25;
-    margin-bottom: 12px;
-  }
-  .dropzone .big .sub {
-    display: block;
-    color: var(--mute);
-    font-style: normal;
-    font-size: 14px;
-    margin-top: 6px;
-  }
-  .dropzone .small {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--mute);
-    line-height: 1.5;
-  }
-  .dropzone input { display: none; }
-
-  .demo-bar {
-    margin-top: 18px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--mute);
-    text-align: center;
-    line-height: 1.8;
-  }
-  .demo-bar a {
-    color: var(--purple);
-    border-bottom: 1px solid var(--purple);
-    margin: 0 2px;
-  }
-  .demo-bar::before { content: "or try a demo · "; color: var(--mute); }
-
-  .processing { text-align: center; padding: 60px 24px; }
-  .processing .pulse {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-size: 22px;
-    animation: pulse 1.3s ease-in-out infinite;
-  }
-  @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-
-  .result { display: block; }
-  .result .poster-wrap {
-    background: var(--white);
-    border: 1px solid var(--ink);
-    overflow: hidden;
-    box-shadow: 4px 4px 0 var(--ink);
-    margin-bottom: 24px;
-  }
-  .result .poster-wrap svg { display: block; width: 100%; height: auto; }
-
-  .result .sidebar h3 {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    letter-spacing: 0.18em;
-    color: var(--purple);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  .result .sidebar p {
-    font-size: 13px;
-    color: var(--mute);
-    line-height: 1.6;
-    margin-bottom: 20px;
-  }
-  .result .actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-  .result .actions .btn { width: 100%; }
-  .result .meta {
-    border-top: 1px solid var(--line);
-    padding-top: 16px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--mute);
-    line-height: 1.85;
-  }
-  .result .meta b { color: var(--ink); font-weight: 600; }
-
+  /* ───────────────── Wall (community) ───────────────── */
   .wall {
-    margin-top: 56px;
-    padding-top: 32px;
-    border-top: 3px double var(--ink);
+    padding: 40px 16px 32px;
   }
   .wall-head {
     display: flex;
-    justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 22px;
+    justify-content: space-between;
+    margin-bottom: 18px;
   }
   .wall-head h3 {
     font-family: 'Playfair Display', serif;
     font-weight: 700;
-    font-size: 24px;
+    font-size: 22px;
     letter-spacing: -0.01em;
   }
   .wall-head .meta {
@@ -199,49 +169,87 @@
     gap: 14px;
   }
   .wall-card {
-    background: var(--white);
+    background: var(--white, #fff);
+    background: #FFFEF8;
     border: 1px solid var(--ink);
-    padding: 10px;
+    border-radius: 8px;
+    overflow: hidden;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
   }
-  .wall-card .thumb {
+  .wall-card:active { background: var(--paper-2); }
+  .wall-card .illus {
     width: 100%;
     aspect-ratio: 1;
-    background: #f0f0f0;
-    object-fit: cover;
+    background: #F0EAD8;
     display: block;
+  }
+  .wall-card .body {
+    padding: 10px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
   .wall-card .title {
     font-family: 'Playfair Display', serif;
     font-weight: 700;
-    font-size: 14px;
+    font-style: italic;
+    font-size: 15px;
     line-height: 1.2;
-    margin: 10px 0 4px;
     color: var(--ink);
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .wall-card .meta {
+  .wall-card .author {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--mute);
+    cursor: pointer;
+    min-width: 0;
+  }
+  .wall-card .author .avatar {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--pink);
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .wall-card .author .name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .wall-card .author:active .name { color: var(--purple); }
+  .wall-card .stats {
     display: flex;
     justify-content: space-between;
-    gap: 6px;
+    gap: 8px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 9.5px;
     letter-spacing: 0.08em;
     color: var(--mute);
     text-transform: uppercase;
   }
-  .wall-card .meta span {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
   .wall-empty {
     grid-column: 1 / -1;
     border: 1px dashed var(--line);
+    border-radius: 8px;
     padding: 32px 20px;
     text-align: center;
     color: var(--mute);
@@ -249,21 +257,149 @@
     font-size: 14px;
   }
 
-  .colophon {
-    margin-top: 48px;
-    padding: 22px 0 36px;
-    border-top: 3px double var(--ink);
+  /* ───────────────── Processing overlay ───────────────── */
+  .processing-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--ink);
+    color: var(--paper);
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+  }
+  .processing-overlay.show { display: flex; }
+  .processing-overlay .step {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--pink);
+    margin-bottom: 14px;
+    animation: blink 1.4s ease-in-out infinite;
+  }
+  .processing-overlay h2 {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--paper);
+    max-width: 320px;
+  }
+  @keyframes blink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+  /* ───────────────── Detail (overlay) ───────────────── */
+  .detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--paper);
+    z-index: 300;
+    overflow-y: auto;
+    display: none;
+  }
+  .detail-overlay.show { display: block; }
+  .detail-overlay .closebar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--paper);
+    border-bottom: 1px solid var(--ink);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .detail-overlay .closebar button {
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .detail-overlay .closebar button:active { color: var(--purple); }
+
+  .detail-overlay .poster-wrap {
+    background: var(--paper-2);
+    padding: 16px;
+  }
+  .detail-overlay .poster-wrap svg { display: block; width: 100%; height: auto; box-shadow: 4px 4px 0 var(--ink); }
+
+  .detail-overlay .actions {
+    position: sticky;
+    bottom: 0;
+    background: var(--paper);
+    border-top: 1px solid var(--ink);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    display: flex;
+    gap: 8px;
+  }
+  .detail-overlay .actions button {
+    flex: 1;
+    min-height: 44px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: 8px;
+  }
+  .detail-overlay .actions button.ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+  }
+  .detail-overlay .actions button.pink {
+    background: var(--pink-strong);
+  }
+  .detail-overlay .actions button:active { background: var(--purple); color: var(--paper); border-color: var(--purple); }
+
+  .detail-overlay .author-bar {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .detail-overlay .author-bar .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--pink);
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    text-transform: uppercase;
+  }
+  .detail-overlay .author-bar .name {
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .detail-overlay .author-bar .when {
+    margin-left: auto;
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
-    letter-spacing: 0.08em;
     color: var(--mute);
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    line-height: 1.8;
   }
 
+  /* ───────────────── Toast ───────────────── */
   .toast {
     position: fixed;
-    bottom: 24px;
+    bottom: 84px;
     left: 50%;
     transform: translateX(-50%);
     background: var(--ink);
@@ -276,9 +412,10 @@
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s;
-    z-index: 100;
+    z-index: 400;
     max-width: 90%;
     text-align: center;
+    border-radius: 20px;
   }
   .toast.show { opacity: 1; }
 
@@ -287,71 +424,49 @@
 </head>
 <body>
 
-<div class="wrap">
+<nav class="navbar">
+  <a class="back" href="../../">← Press</a>
+  <div class="brand">Field <span class="accent">Guide</span></div>
+  <div class="me" id="userChip">anon</div>
+</nav>
 
-  <nav class="topbar">
-    <div class="left">
-      <a href="../../">AlterU Press</a>
-      <span class="crumb">→ Field Guide</span>
-    </div>
-    <div class="right" id="userChip">anon</div>
-  </nav>
-
-  <header class="head">
-    <div class="eyebrow">Tool 01 · Cultural</div>
-    <h1>A <span class="italic">Picture</span>, Guided.</h1>
-    <p class="lede">Photograph the most ordinary thing in the room. The press identifies it, names its parts, finds its cousins, types up a field guide.</p>
-    <div class="stamp">
-      <span>Vision: Claude</span>
-      <span>~10 sec</span>
-      <span>Printable</span>
-    </div>
-  </header>
-
-  <main class="stage">
-
-    <section id="upload" class="dropzone" tabindex="0">
-      <input id="file" type="file" accept="image/*" capture="environment">
-      <div class="big">Take or drop a photograph<span class="sub">a hat, a teapot, a bag, a chair</span></div>
-      <div class="small">JPG · PNG · WEBP</div>
-    </section>
-    <div class="demo-bar" id="demoBar"></div>
-
-    <section id="processing" class="processing hidden">
-      <div class="pulse" id="processingMsg">Reading the picture…</div>
-    </section>
-
-    <section id="result" class="result hidden">
-      <div class="poster-wrap" id="posterWrap"></div>
-      <aside class="sidebar">
-        <h3>Take it with you</h3>
-        <p>Download the field guide, post it to the wall, or share it to the feed.</p>
-        <div class="actions">
-          <button class="btn pink" id="publishBtn">Publish to wall</button>
-          <button class="btn" id="dlPNG">Download PNG</button>
-          <button class="btn ghost" id="dlSVG">Download SVG</button>
-          <button class="btn ghost hidden" id="shareFeedBtn">Share to feed</button>
-          <button class="btn ghost" id="resetBtn">File another</button>
-        </div>
-        <div class="meta" id="readout"></div>
-      </aside>
-    </section>
-
-  </main>
+<main class="home">
+  <section id="upload" class="shoot" tabindex="0">
+    <input id="file" type="file" accept="image/*" capture="environment">
+    <div class="iconring"></div>
+    <h1>Identify any ordinary thing.</h1>
+    <div class="hint">Tap to take a photograph</div>
+    <div class="demo-strip" id="demoBar"></div>
+  </section>
 
   <section class="wall">
     <div class="wall-head">
-      <h3>The Wall</h3>
-      <div class="meta">Recent specimens</div>
+      <h3>On the wall</h3>
+      <div class="meta" id="wallCount">Recent</div>
     </div>
     <div id="wallGrid" class="wall-grid"></div>
   </section>
+</main>
 
-  <footer class="colophon">
-    © 2026 AlterU Press · Issue 01 — Field Guide<br>
-    v2.0 · Vision: Claude
-  </footer>
+<div id="processing" class="processing-overlay">
+  <div class="step" id="processingStep">READING</div>
+  <h2 id="processingMsg">Reading the picture…</h2>
+</div>
 
+<div id="detail" class="detail-overlay">
+  <div class="closebar">
+    <button id="detailClose">← Close</button>
+    <span>Field Guide</span>
+    <span></span>
+  </div>
+  <div class="author-bar" id="detailAuthor"></div>
+  <div class="poster-wrap" id="posterWrap"></div>
+  <div class="actions">
+    <button class="pink" id="publishBtn">Publish</button>
+    <button id="dlPNG">PNG</button>
+    <button class="ghost" id="dlSVG">SVG</button>
+    <button class="ghost hidden" id="shareFeedBtn">Share</button>
+  </div>
 </div>
 
 <div id="toast" class="toast"></div>
