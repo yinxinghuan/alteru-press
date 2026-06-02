@@ -75,6 +75,40 @@
   }
   @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
+  /* ───────────────── Processing overlay (gen-image step) ───────────────── */
+  .processing-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--ink);
+    color: var(--paper);
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+  }
+  .processing-overlay.show { display: flex; }
+  .processing-overlay .step {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--pink);
+    margin-bottom: 14px;
+    animation: blink 1.4s ease-in-out infinite;
+  }
+  .processing-overlay h2 {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--paper);
+    max-width: 320px;
+  }
+  @keyframes blink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
   /* ───────────────── Page view (the poster) ───────────────── */
   .page-wrap {
     padding: 16px 16px 0;
@@ -294,6 +328,11 @@
     No. 0002 · Daily · Set in Playfair · Montserrat · JetBrains Mono
   </footer>
 </main>
+
+<div id="processing" class="processing-overlay">
+  <div class="step" id="processingStep">DRAWING</div>
+  <h2 id="processingMsg">Drawing today's almanac…</h2>
+</div>
 
 <div id="toast" class="toast"></div>
 

@@ -5,6 +5,12 @@ import { getTodayPage } from "./almanac.js";
 import { buildAlmanacSVG, POSTER_W, POSTER_H } from "./poster.js";
 import { aigramCtx, fetchUser } from "../field-guide/aigram.js";
 import { t } from "../../shared/i18n.js";
+import { buildIllustrationPrompt } from "./seasons.js";
+
+const GEN_IMAGE_PROXY = "https://chat.aiwaves.tech/aigram/api/gen-image";
+// Style anchor: a 1024×1024 botanical-illustration ref hosted on Pages.
+// The model preserves aspect from ref; this is square → square output.
+const STYLE_REF_URL = "https://yinxinghuan.github.io/alteru-press/tools/field-guide/img/hat.png";
 
 const $ = (id) => document.getElementById(id);
 
@@ -44,28 +50,75 @@ async function init() {
     state.page = page;
     render();
     renderStampList();
-    // Try to load today's illustration (committed PNG or Worker-generated later)
-    loadIllustration(todayKey()).then((url) => {
+    // Each user triggers their own gen-image for today.
+    // In Aigram: hits the platform proxy → user gets a fresh illustration.
+    // Standalone preview: falls back to committed PNG demo.
+    requestUserIllustration(page).then((url) => {
       if (url) {
         state.illustrationUrl = url;
         render();
       }
+      hideProcessing();
     });
   } catch (e) {
     console.error(e);
     toast("Couldn't load today's page");
+    hideProcessing();
   }
 }
 
-async function loadIllustration(dateKey) {
-  // Try the static path first (canonical PNG committed in repo)
-  const staticUrl = `${ILLUSTRATION_BASE}${dateKey}.png`;
+async function requestUserIllustration(page) {
+  const dateKey = todayKey();
+  const userKey = (state.user.handle || "anon").toLowerCase();
+  const cacheKey = `alteru-press:almanac:illus:${userKey}:${dateKey}`;
+
+  // 1. Per-user localStorage cache — same user opens twice on the same day → instant
   try {
-    const r = await fetch(staticUrl, { method: "HEAD" });
-    if (r.ok) return staticUrl;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return cached;
   } catch {}
-  // Worker fallback would go here in a later phase.
+
+  // 2. In Aigram: trigger gen-image for this user
+  if (aigramCtx.isInside) {
+    showProcessing("DRAWING", "Drawing today's almanac…");
+    try {
+      const prompt = buildIllustrationPrompt(page);
+      const r = await fetch(GEN_IMAGE_PROXY, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ref: STYLE_REF_URL, prompt }),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        const url = data.url || data.image || data.image_url;
+        if (url) {
+          try { localStorage.setItem(cacheKey, url); } catch {}
+          return url;
+        }
+      }
+    } catch (e) {
+      console.warn("gen-image failed", e);
+    }
+  }
+
+  // 3. Standalone/preview fallback: committed PNG demo
+  const fallback = `${ILLUSTRATION_BASE}${dateKey}.png`;
+  try {
+    const r = await fetch(fallback, { method: "HEAD" });
+    if (r.ok) return fallback;
+  } catch {}
   return null;
+}
+
+function showProcessing(step, msg) {
+  const el = $("processing");
+  if (!el) return;
+  $("processingStep").textContent = step;
+  $("processingMsg").textContent = msg;
+  el.classList.add("show");
+}
+function hideProcessing() {
+  $("processing")?.classList.remove("show");
 }
 
 function render() {
