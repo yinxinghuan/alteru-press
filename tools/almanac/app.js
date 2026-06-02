@@ -14,7 +14,10 @@ let state = {
   user: { id: null, name: "anonymous", handle: "anonymous" },
   page: null,
   myStamp: null,
+  illustrationUrl: null,
 };
+
+const ILLUSTRATION_BASE = new URL("img/daily/", import.meta.url).href;
 
 init();
 
@@ -41,16 +44,35 @@ async function init() {
     state.page = page;
     render();
     renderStampList();
+    // Try to load today's illustration (committed PNG or Worker-generated later)
+    loadIllustration(todayKey()).then((url) => {
+      if (url) {
+        state.illustrationUrl = url;
+        render();
+      }
+    });
   } catch (e) {
     console.error(e);
     toast("Couldn't load today's page");
   }
 }
 
+async function loadIllustration(dateKey) {
+  // Try the static path first (canonical PNG committed in repo)
+  const staticUrl = `${ILLUSTRATION_BASE}${dateKey}.png`;
+  try {
+    const r = await fetch(staticUrl, { method: "HEAD" });
+    if (r.ok) return staticUrl;
+  } catch {}
+  // Worker fallback would go here in a later phase.
+  return null;
+}
+
 function render() {
   const svg = buildAlmanacSVG(state.page, {
     author: state.user.handle,
     stamp: state.myStamp,
+    illustrationUrl: state.illustrationUrl,
   });
   $("page").innerHTML = svg;
   $("page").classList.remove("hidden");
@@ -141,6 +163,7 @@ async function downloadPNG() {
   const svgStr = buildAlmanacSVG(state.page, {
     author: state.user.handle,
     stamp: state.myStamp,
+    illustrationUrl: state.illustrationUrl,
   });
   const scale = 2;
   const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });

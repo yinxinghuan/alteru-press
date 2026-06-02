@@ -39,15 +39,21 @@ export function buildAlmanacSVG(page, opts = {}) {
   </g>`);
   y += 38;
 
-  // ───────── Hero illustration placeholder (gen-image in P2)
+  // ───────── Hero illustration
   y += 16;
-  const heroH = 380;
-  parts.push(`<rect x="${PAD}" y="${y}" width="${W - PAD * 2}" height="${heroH}" fill="#E8DEC7" stroke="#0F0F0F" stroke-width="1.5"/>`);
-  // dashed inner border
-  parts.push(`<rect x="${PAD + 16}" y="${y + 16}" width="${W - PAD * 2 - 32}" height="${heroH - 32}" fill="none" stroke="#6B6B6B" stroke-width="0.8" stroke-dasharray="6,4"/>`);
-  // placeholder label
-  parts.push(`<text x="${W / 2}" y="${y + heroH / 2 - 14}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="3" fill="#6B6B6B">DAILY ILLUSTRATION</text>`);
-  parts.push(`<text x="${W / 2}" y="${y + heroH / 2 + 14}" text-anchor="middle" font-family="Playfair Display, serif" font-style="italic" font-size="20" fill="#6B6B6B">— gen-image arrives in v2 —</text>`);
+  const heroH = 540;
+  const heroW = W - PAD * 2;
+  if (opts.illustrationUrl) {
+    // Frame
+    parts.push(`<rect x="${PAD - 6}" y="${y - 6}" width="${heroW + 12}" height="${heroH + 12}" fill="#0F0F0F"/>`);
+    parts.push(`<image href="${opts.illustrationUrl}" x="${PAD}" y="${y}" width="${heroW}" height="${heroH}" preserveAspectRatio="xMidYMid slice"/>`);
+  } else {
+    // Placeholder (image still loading or not yet generated for this date)
+    parts.push(`<rect x="${PAD}" y="${y}" width="${heroW}" height="${heroH}" fill="#E8DEC7" stroke="#0F0F0F" stroke-width="1.5"/>`);
+    parts.push(`<rect x="${PAD + 16}" y="${y + 16}" width="${heroW - 32}" height="${heroH - 32}" fill="none" stroke="#6B6B6B" stroke-width="0.8" stroke-dasharray="6,4"/>`);
+    parts.push(`<text x="${W / 2}" y="${y + heroH / 2 - 14}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="3" fill="#6B6B6B">DAILY ILLUSTRATION</text>`);
+    parts.push(`<text x="${W / 2}" y="${y + heroH / 2 + 14}" text-anchor="middle" font-family="Playfair Display, serif" font-style="italic" font-size="20" fill="#6B6B6B">— forthcoming —</text>`);
+  }
   y += heroH + 28;
 
   // ───────── Lunar block
