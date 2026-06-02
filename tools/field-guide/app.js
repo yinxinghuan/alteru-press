@@ -141,24 +141,17 @@ async function runDemo(key) {
 }
 
 function finalizeResult({ url, dossier }) {
-  const svg = buildPosterSVG(dossier, dossier.illustration, {
-    author: state.user.handle,
-    date: new Date().toISOString().slice(0, 10).replace(/-/g, "."),
-    issueNo: nextIssueNo(),
-  });
-
   state.currentDossier = dossier;
-  state.currentSvg = svg;
+  state.currentSvg = null; // SVG generated lazily on download click
   state.currentDataUrl = url;
   state.currentEntry = null;
 
-  // Show detail with self header
   detailAuthorEl.innerHTML = `
     <div class="avatar">${escapeHtml((state.user.handle || "a")[0])}</div>
     <div class="name">@${escapeHtml(state.user.handle)}</div>
     <div class="when">${escapeHtml(t("time.justNow"))}</div>
   `;
-  posterWrap.innerHTML = svg;
+  posterWrap.innerHTML = renderDossierHTML(dossier);
   hideProcessing();
   detailEl.classList.add("show");
 }
@@ -172,22 +165,67 @@ function openDetailFromWall(entry) {
   } : null);
   if (!dossier) { toast("Couldn't load that entry"); return; }
 
-  const svg = buildPosterSVG(dossier, dossier.illustration, {
-    author: entry.handle,
-    date: formatRelDate(entry.createdAt),
-    issueNo: String(entry.issueNo || "----").padStart(4, "0"),
-  });
-
   state.currentDossier = dossier;
-  state.currentSvg = svg;
+  state.currentSvg = null;
 
   detailAuthorEl.innerHTML = `
     <div class="avatar">${escapeHtml((entry.handle || "a")[0])}</div>
     <div class="name">@${escapeHtml(entry.handle)}</div>
     <div class="when">${formatRelTime(entry.createdAt)}</div>
   `;
-  posterWrap.innerHTML = svg;
+  posterWrap.innerHTML = renderDossierHTML(dossier);
   detailEl.classList.add("show");
+}
+
+function renderDossierHTML(dossier) {
+  const illusSrc = dossier.illustration || "";
+  const intro = escapeHtml(dossier.intro || "");
+  const anatomy = (dossier.anatomy || []).slice(0, 6).map(p => `
+    <div class="part">
+      <div class="name">${escapeHtml(p.name)}</div>
+      <div class="note">${escapeHtml(p.note)}</div>
+    </div>
+  `).join("");
+  const relatives = (dossier.relatives || []).slice(0, 8).map(r => `
+    <div class="rel">
+      <div class="rname">${escapeHtml(r.name)}</div>
+      <div class="rorigin">${escapeHtml(r.origin || "")}</div>
+      <div class="rnote">${escapeHtml(r.note || "")}</div>
+    </div>
+  `).join("");
+
+  return `
+    <article class="dossier">
+      ${illusSrc ? `<img class="illus" src="${illusSrc}" alt="">` : ""}
+      <div class="body">
+        <div class="kicker">${escapeHtml(dossier.kicker || "")}</div>
+        <div class="title">${escapeHtml(dossier.title || "untitled")}</div>
+        <div class="subtitle">on display.</div>
+
+        <section>
+          <h3>Today's specimen</h3>
+          <p class="intro">${intro}</p>
+        </section>
+
+        <section>
+          <h3>Anatomy <span class="count">${(dossier.anatomy || []).length} parts</span></h3>
+          <div class="anatomy">${anatomy}</div>
+        </section>
+
+        <section>
+          <h3>This object has relatives <span class="count">${(dossier.relatives || []).length} entries</span></h3>
+          <div class="relatives">${relatives}</div>
+        </section>
+
+        <section>
+          <h3>Why we make them</h3>
+          <p class="essay">${escapeHtml(dossier.essay || "")}</p>
+        </section>
+
+        <div class="filed">Filed · AlterU Press · Field Guide</div>
+      </div>
+    </article>
+  `;
 }
 
 function closeDetail() {
@@ -209,8 +247,20 @@ function hideProcessing() {
   processing.classList.remove("show");
 }
 
+function ensureSvg() {
+  if (state.currentSvg) return state.currentSvg;
+  if (!state.currentDossier) return null;
+  const d = state.currentDossier;
+  state.currentSvg = buildPosterSVG(d, d.illustration, {
+    author: state.user.handle,
+    date: new Date().toISOString().slice(0, 10).replace(/-/g, "."),
+    issueNo: nextIssueNo(),
+  });
+  return state.currentSvg;
+}
+
 async function downloadPNG() {
-  if (!state.currentSvg) return;
+  if (!ensureSvg()) return;
   const scale = 2;
   const svgBlob = new Blob([state.currentSvg], { type: "image/svg+xml;charset=utf-8" });
   const svgUrl = URL.createObjectURL(svgBlob);
@@ -230,7 +280,7 @@ async function downloadPNG() {
 }
 
 function downloadSVG() {
-  if (!state.currentSvg) return;
+  if (!ensureSvg()) return;
   const blob = new Blob([state.currentSvg], { type: "image/svg+xml;charset=utf-8" });
   downloadBlob(blob, `field-guide-${slug(state.currentDossier?.title)}-${Date.now()}.svg`);
   toast(t("toast.svgSaved"));

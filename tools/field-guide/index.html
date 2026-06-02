@@ -328,9 +328,136 @@
 
   .detail-overlay .poster-wrap {
     background: var(--paper-2);
-    padding: 16px;
+    padding: 0;
   }
-  .detail-overlay .poster-wrap svg { display: block; width: 100%; height: auto; box-shadow: 4px 4px 0 var(--ink); }
+
+  /* ───── Native HTML dossier (mobile-readable) ───── */
+  .dossier {
+    background: var(--paper);
+    padding: 0 0 28px;
+  }
+  .dossier .illus {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #F0EAD8;
+    border-bottom: 1px solid var(--ink);
+  }
+  .dossier .body { padding: 22px 18px 0; }
+  .dossier .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 12px;
+  }
+  .dossier .title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 40px;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .dossier .subtitle {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 30px;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    color: var(--pink-strong);
+    margin-bottom: 26px;
+  }
+
+  .dossier section { padding-top: 22px; margin-top: 22px; border-top: 1px solid var(--ink); }
+  .dossier section h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.18em;
+    color: var(--purple);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .dossier section h3 .count {
+    font-weight: 400;
+    color: var(--mute);
+    letter-spacing: 0.14em;
+  }
+  .dossier .intro {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  .dossier .anatomy { display: flex; flex-direction: column; gap: 14px; }
+  .dossier .anatomy .part {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 14px;
+    align-items: baseline;
+  }
+  .dossier .anatomy .part .name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+  }
+  .dossier .anatomy .part .note {
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .dossier .relatives { display: flex; flex-direction: column; gap: 16px; }
+  .dossier .relatives .rel {
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 14px;
+  }
+  .dossier .relatives .rel:last-child { border-bottom: none; }
+  .dossier .relatives .rel .rname {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 19px;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .dossier .relatives .rel .rorigin {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--mute);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .dossier .relatives .rel .rnote {
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .dossier .essay {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .dossier .filed {
+    margin-top: 22px;
+    padding-top: 14px;
+    border-top: 3px double var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute);
+    text-align: center;
+  }
 
   .detail-overlay .actions {
     position: sticky;
@@ -433,7 +560,7 @@
 
 <main class="home">
   <section id="upload" class="shoot" tabindex="0">
-    <input id="file" type="file" accept="image/*" capture="environment">
+    <input id="file" type="file" accept="image/*">
     <div class="iconring"></div>
     <h1 data-i18n="tool.cta.title">Identify any ordinary thing.</h1>
     <div class="hint" data-i18n="tool.cta.hint">Tap to take a photograph</div>

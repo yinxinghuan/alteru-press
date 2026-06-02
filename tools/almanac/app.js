@@ -122,15 +122,102 @@ function hideProcessing() {
 }
 
 function render() {
-  const svg = buildAlmanacSVG(state.page, {
+  $("page").innerHTML = renderAlmanacHTML(state.page, {
+    illustrationUrl: state.illustrationUrl,
     author: state.user.handle,
     stamp: state.myStamp,
-    illustrationUrl: state.illustrationUrl,
   });
-  $("page").innerHTML = svg;
   $("page").classList.remove("hidden");
   $("stampRow").classList.remove("hidden");
   $("loading").classList.add("hidden");
+}
+
+function renderAlmanacHTML(p, opts = {}) {
+  const e = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  const dateStr = `${p.date.y}.${String(p.date.m).padStart(2,"0")}.${String(p.date.d).padStart(2,"0")}`;
+  const phase = p.sunMoon.moon;
+
+  const lunarBlock = p.lunar.monthName && p.lunar.dayName ? `
+    <section class="lunar">
+      <h3>Lunar ${p.jieqi.next ? `<span class="meta">${e(p.jieqi.next)} · ${p.jieqi.daysUntilNext}d</span>` : ""}</h3>
+      <div class="ml">农历 ${e(p.lunar.monthName)}${e(p.lunar.dayName)}</div>
+      <div class="gz">${e(p.ganzhi.year)} 年 · ${e(p.ganzhi.month)} 月 · ${e(p.ganzhi.day)} 日</div>
+    </section>` : "";
+
+  const smBlock = `
+    <section>
+      <h3>Sun · Moon</h3>
+      <div class="sm">
+        <div class="item"><div class="k">Sunrise</div>  <div class="v">${e(p.sunMoon.sunrise || "—")}</div></div>
+        <div class="item"><div class="k">Sunset</div>   <div class="v">${e(p.sunMoon.sunset || "—")}</div></div>
+        <div class="item"><div class="k">Moonrise</div> <div class="v">${e(p.sunMoon.moonrise || "—")}</div></div>
+        <div class="item"><div class="k">Moonset</div>  <div class="v">${e(p.sunMoon.moonset || "—")}</div></div>
+      </div>
+    </section>`;
+
+  const yi = (p.yi || []).map(x => `
+    <div class="item"><div class="zh">· ${e(x.zh)}</div><div class="en">${e(x.en)}</div></div>
+  `).join("");
+  const ji = (p.ji || []).map(x => `
+    <div class="item"><div class="zh">· ${e(x.zh)}</div><div class="en">${e(x.en)}</div></div>
+  `).join("");
+
+  const yjBlock = `
+    <section>
+      <h3>Auspicious · Inauspicious</h3>
+      <div class="yj">
+        <div class="col"><h4>宜</h4>${yi}</div>
+        <div class="col"><h4>忌</h4>${ji}</div>
+      </div>
+    </section>`;
+
+  const otd = (p.onThisDay || []).slice(0, 3).map(x => {
+    if (typeof x === "string") return `<div class="item">${e(x)}</div>`;
+    return `<div class="item"><b>${e(x.year)}</b>${e(x.text)}</div>`;
+  }).join("");
+  const otdBlock = `
+    <section class="otd">
+      <h3>On this day</h3>
+      ${otd || `<div class="item" style="color:var(--mute);font-style:italic">— quiet day —</div>`}
+    </section>`;
+
+  const noteBlock = `
+    <section>
+      <h3>Editor's note</h3>
+      <div class="note">"${e(p.editorNote || "")}"</div>
+    </section>`;
+
+  const stampBlock = opts.stamp ? `
+    <div class="stamp-box">
+      <div class="by">Stamped by @${e((opts.author || "you").toUpperCase())} · ${e(opts.stamp.time || "")}</div>
+      <div class="note">"${e(opts.stamp.note || "")}"</div>
+    </div>` : "";
+
+  const illusBlock = opts.illustrationUrl
+    ? `<img class="illus" src="${e(opts.illustrationUrl)}" alt="">`
+    : `<div class="illus-fallback">— daily illustration forthcoming —</div>`;
+
+  return `
+    <article class="alm">
+      <div class="head">
+        <div class="row">
+          <span>ALTERU PRESS</span>
+          <span>Almanac · No. ${e(p.issueNo)}</span>
+          <span>${e(dateStr)}</span>
+        </div>
+        <h1>${e(p.date.monthEn)}<em>${e(p.date.ordinalEn)}.</em></h1>
+        <div class="moon-chip">Moon · <em>${e(phase.name)}</em> · ${phase.illumination}% lit</div>
+      </div>
+      ${illusBlock}
+      ${lunarBlock}
+      ${smBlock}
+      ${yjBlock}
+      ${otdBlock}
+      ${noteBlock}
+      ${stampBlock}
+      <div class="filed">Almanac · AlterU Press · ${e(p.date.weekday || "")}</div>
+    </article>
+  `;
 }
 
 function stamp() {

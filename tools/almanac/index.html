@@ -109,17 +109,187 @@
   }
   @keyframes blink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-  /* ───────────────── Page view (the poster) ───────────────── */
-  .page-wrap {
-    padding: 16px 16px 0;
+  /* ───────────────── Page view (native HTML, mobile-readable) ───────────────── */
+  .page-wrap { padding: 8px 0 0; }
+  .alm {
+    background: var(--paper);
+    padding: 18px 18px 24px;
   }
-  .page-wrap svg {
+  .alm .head { margin-bottom: 22px; }
+  .alm .head .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .alm .head h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 42px;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+  }
+  .alm .head h1 em {
+    font-style: italic;
+    color: var(--pink-strong);
+    display: block;
+  }
+  .alm .moon-chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 6px 12px;
+    border: 1px solid var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .alm .moon-chip em { font-style: italic; color: var(--pink-strong); }
+
+  .alm .illus {
     display: block;
     width: 100%;
     height: auto;
-    background: var(--paper);
+    background: #F0EAD8;
     border: 1px solid var(--ink);
-    box-shadow: 4px 4px 0 var(--ink);
+    margin: 20px 0 8px;
+  }
+  .alm .illus-fallback {
+    aspect-ratio: 1;
+    background: #E8DEC7;
+    border: 1px solid var(--ink);
+    margin: 20px 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--mute);
+    font-size: 16px;
+  }
+
+  .alm section { padding-top: 22px; margin-top: 22px; border-top: 1px solid var(--ink); }
+  .alm section h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.18em;
+    color: var(--purple);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .alm section h3 .meta { color: var(--mute); font-weight: 400; letter-spacing: 0.14em; }
+
+  .alm .lunar .ml { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 700; font-size: 24px; margin-bottom: 6px; }
+  .alm .lunar .gz { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink-soft); letter-spacing: 0.05em; }
+
+  .alm .sm { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .alm .sm .item .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--mute);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .alm .sm .item .v {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--ink);
+  }
+
+  .alm .yj { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .alm .yj .col h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    color: var(--purple);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .alm .yj .col .item {
+    margin-bottom: 10px;
+  }
+  .alm .yj .col .item .zh {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+  }
+  .alm .yj .col .item .en {
+    font-family: 'Montserrat', sans-serif;
+    font-style: italic;
+    font-size: 12.5px;
+    color: var(--mute);
+  }
+
+  .alm .otd .item {
+    margin-bottom: 12px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .alm .otd .item b {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--ink);
+    margin-right: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  .alm .note {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  .alm .filed {
+    margin-top: 24px;
+    padding-top: 14px;
+    border-top: 3px double var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute);
+    text-align: center;
+  }
+
+  .alm .stamp-box {
+    margin-top: 20px;
+    padding: 14px;
+    background: var(--paper-2);
+    border: 1px dashed var(--ink);
+  }
+  .alm .stamp-box .by {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pink-strong);
+    margin-bottom: 6px;
+  }
+  .alm .stamp-box .note {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-style: normal;
+    font-size: 20px;
+    color: var(--ink);
   }
 
   /* ───────────────── Stamp composer ───────────────── */
