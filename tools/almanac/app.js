@@ -62,7 +62,7 @@ async function init() {
     });
   } catch (e) {
     console.error(e);
-    toast("Couldn't load today's page");
+    toast(t("stamp.toast.failed"));
     hideProcessing();
   }
 }
@@ -139,19 +139,19 @@ function renderAlmanacHTML(p, opts = {}) {
 
   const lunarBlock = p.lunar.monthName && p.lunar.dayName ? `
     <section class="lunar">
-      <h3>Lunar ${p.jieqi.next ? `<span class="meta">${e(p.jieqi.next)} · ${p.jieqi.daysUntilNext}d</span>` : ""}</h3>
+      <h3>${e(t("alm.section.lunar"))} ${p.jieqi.next ? `<span class="meta">${e(p.jieqi.next)} · ${e(t("alm.daysUntil", { n: p.jieqi.daysUntilNext }))}</span>` : ""}</h3>
       <div class="ml">农历 ${e(p.lunar.monthName)}${e(p.lunar.dayName)}</div>
       <div class="gz">${e(p.ganzhi.year)} 年 · ${e(p.ganzhi.month)} 月 · ${e(p.ganzhi.day)} 日</div>
     </section>` : "";
 
   const smBlock = `
     <section>
-      <h3>Sun · Moon</h3>
+      <h3>${e(t("alm.section.sunmoon"))}</h3>
       <div class="sm">
-        <div class="item"><div class="k">Sunrise</div>  <div class="v">${e(p.sunMoon.sunrise || "—")}</div></div>
-        <div class="item"><div class="k">Sunset</div>   <div class="v">${e(p.sunMoon.sunset || "—")}</div></div>
-        <div class="item"><div class="k">Moonrise</div> <div class="v">${e(p.sunMoon.moonrise || "—")}</div></div>
-        <div class="item"><div class="k">Moonset</div>  <div class="v">${e(p.sunMoon.moonset || "—")}</div></div>
+        <div class="item"><div class="k">${e(t("alm.sm.sunrise"))}</div>  <div class="v">${e(p.sunMoon.sunrise || "—")}</div></div>
+        <div class="item"><div class="k">${e(t("alm.sm.sunset"))}</div>   <div class="v">${e(p.sunMoon.sunset || "—")}</div></div>
+        <div class="item"><div class="k">${e(t("alm.sm.moonrise"))}</div> <div class="v">${e(p.sunMoon.moonrise || "—")}</div></div>
+        <div class="item"><div class="k">${e(t("alm.sm.moonset"))}</div>  <div class="v">${e(p.sunMoon.moonset || "—")}</div></div>
       </div>
     </section>`;
 
@@ -164,10 +164,10 @@ function renderAlmanacHTML(p, opts = {}) {
 
   const yjBlock = `
     <section>
-      <h3>Auspicious · Inauspicious</h3>
+      <h3>${e(t("alm.section.yj"))}</h3>
       <div class="yj">
-        <div class="col"><h4>宜</h4>${yi}</div>
-        <div class="col"><h4>忌</h4>${ji}</div>
+        <div class="col"><h4>${e(t("alm.yj.yi"))}</h4>${yi}</div>
+        <div class="col"><h4>${e(t("alm.yj.ji"))}</h4>${ji}</div>
       </div>
     </section>`;
 
@@ -177,25 +177,25 @@ function renderAlmanacHTML(p, opts = {}) {
   }).join("");
   const otdBlock = `
     <section class="otd">
-      <h3>On this day</h3>
-      ${otd || `<div class="item" style="color:var(--mute);font-style:italic">— quiet day —</div>`}
+      <h3>${e(t("alm.section.otd"))}</h3>
+      ${otd || `<div class="item" style="color:var(--mute);font-style:italic">${e(t("alm.quietDay"))}</div>`}
     </section>`;
 
   const noteBlock = `
     <section>
-      <h3>Editor's note</h3>
+      <h3>${e(t("alm.section.note"))}</h3>
       <div class="note">"${e(p.editorNote || "")}"</div>
     </section>`;
 
   const stampBlock = opts.stamp ? `
     <div class="stamp-box">
-      <div class="by">Stamped by @${e((opts.author || "you").toUpperCase())} · ${e(opts.stamp.time || "")}</div>
+      <div class="by">${e(t("alm.stampBy"))} @${e((opts.author || "you").toUpperCase())} · ${e(opts.stamp.time || "")}</div>
       <div class="note">"${e(opts.stamp.note || "")}"</div>
     </div>` : "";
 
   const illusBlock = opts.illustrationUrl
     ? `<img class="illus" src="${e(opts.illustrationUrl)}" alt="">`
-    : `<div class="illus-fallback">— daily illustration forthcoming —</div>`;
+    : `<div class="illus-fallback">${e(t("alm.illusForthcoming"))}</div>`;
 
   return `
     <article class="alm">
@@ -206,7 +206,7 @@ function renderAlmanacHTML(p, opts = {}) {
           <span>${e(dateStr)}</span>
         </div>
         <h1>${e(p.date.monthEn)}<em>${e(p.date.ordinalEn)}.</em></h1>
-        <div class="moon-chip">Moon · <em>${e(phase.name)}</em> · ${phase.illumination}% lit</div>
+        <div class="moon-chip">${e(t("alm.moon.label"))} · <em>${e(phase.name)}</em> · ${phase.illumination}${e(t("alm.moon.lit"))}</div>
       </div>
       ${illusBlock}
       ${lunarBlock}
@@ -215,7 +215,7 @@ function renderAlmanacHTML(p, opts = {}) {
       ${otdBlock}
       ${noteBlock}
       ${stampBlock}
-      <div class="filed">Almanac · AlterU Press · ${e(p.date.weekday || "")}</div>
+      <div class="filed">${e(t("alm.filed"))} · ${e(p.date.weekday || "")}</div>
     </article>
   `;
 }
@@ -223,7 +223,7 @@ function renderAlmanacHTML(p, opts = {}) {
 function stamp() {
   const note = $("stampInput").value.trim();
   if (!note) {
-    toast("Write a line first");
+    toast(t("stamp.toast.empty"));
     return;
   }
   const now = new Date();
@@ -232,7 +232,7 @@ function stamp() {
   saveMyStamp(note, time);
   render();
   renderStampList();
-  toast("Stamped");
+  toast(t("stamp.toast.stamped"));
 }
 
 function todayKey() {
@@ -281,11 +281,11 @@ function renderStampList() {
   const list = getStamps();
   const el = $("stampList");
   if (!list.length) {
-    el.innerHTML = `<div class="stamps-empty">No stamps yet today. Be the first.</div>`;
-    $("stampCount").textContent = "today · 0";
+    el.innerHTML = `<div class="stamps-empty">${escapeHtml(t("stamp.wallEmpty"))}</div>`;
+    $("stampCount").textContent = t("stamp.wallCount", { n: 0 });
     return;
   }
-  $("stampCount").textContent = `today · ${list.length}`;
+  $("stampCount").textContent = t("stamp.wallCount", { n: list.length });
   el.innerHTML = list.map(s => `
     <div class="stamp-card">
       <div class="author">
@@ -320,7 +320,7 @@ async function downloadPNG() {
   URL.revokeObjectURL(svgUrl);
   const blob = await new Promise(r => canvas.toBlob(r, "image/png", 0.96));
   download(blob, `almanac-${todayKey()}.png`);
-  toast("PNG saved");
+  toast(t("toast.pngSaved"));
 }
 
 function downloadSVG() {
@@ -331,7 +331,7 @@ function downloadSVG() {
   });
   const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
   download(blob, `almanac-${todayKey()}.svg`);
-  toast("SVG saved");
+  toast(t("toast.svgSaved"));
 }
 
 function download(blob, name) {

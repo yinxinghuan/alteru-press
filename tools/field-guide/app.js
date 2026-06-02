@@ -200,29 +200,29 @@ function renderDossierHTML(dossier) {
       <div class="body">
         <div class="kicker">${escapeHtml(dossier.kicker || "")}</div>
         <div class="title">${escapeHtml(dossier.title || "untitled")}</div>
-        <div class="subtitle">on display.</div>
+        <div class="subtitle">${escapeHtml(t("fg.subtitle"))}</div>
 
         <section>
-          <h3>Today's specimen</h3>
+          <h3>${escapeHtml(t("fg.section.specimen"))}</h3>
           <p class="intro">${intro}</p>
         </section>
 
         <section>
-          <h3>Anatomy <span class="count">${(dossier.anatomy || []).length} parts</span></h3>
+          <h3>${escapeHtml(t("fg.section.anatomy"))} <span class="count">${escapeHtml(t("fg.parts", { n: (dossier.anatomy || []).length }))}</span></h3>
           <div class="anatomy">${anatomy}</div>
         </section>
 
         <section>
-          <h3>This object has relatives <span class="count">${(dossier.relatives || []).length} entries</span></h3>
+          <h3>${escapeHtml(t("fg.section.relatives"))} <span class="count">${escapeHtml(t("fg.entries", { n: (dossier.relatives || []).length }))}</span></h3>
           <div class="relatives">${relatives}</div>
         </section>
 
         <section>
-          <h3>Why we make them</h3>
+          <h3>${escapeHtml(t("fg.section.essay"))}</h3>
           <p class="essay">${escapeHtml(dossier.essay || "")}</p>
         </section>
 
-        <div class="filed">Filed · AlterU Press · Field Guide</div>
+        <div class="filed">${escapeHtml(t("fg.filed"))}</div>
       </div>
     </article>
   `;

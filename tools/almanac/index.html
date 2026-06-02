@@ -471,25 +471,25 @@
 
 <main>
   <div id="loading" class="loading">
-    <div class="pulse">Reading today's page…</div>
+    <div class="pulse" data-i18n="alm.loading">Reading today's page…</div>
   </div>
 
   <div id="page" class="page-wrap hidden"></div>
 
   <section id="stampRow" class="stamp-row hidden">
-    <h3>Stamp this page</h3>
-    <textarea id="stampInput" placeholder="一句话 · or one line in your tongue · max 60 chars" maxlength="60"></textarea>
+    <h3 data-i18n="stamp.heading">Stamp this page</h3>
+    <textarea id="stampInput" data-i18n-attr="placeholder:stamp.placeholder" placeholder="one line · max 60 chars" maxlength="60"></textarea>
     <div class="stamp-actions">
-      <button id="publishStamp">Stamp</button>
-      <button id="dlPNG" class="ghost">PNG</button>
-      <button id="dlSVG" class="ghost">SVG</button>
+      <button id="publishStamp" data-i18n="stamp.cta">Stamp</button>
+      <button id="dlPNG" class="ghost" data-i18n="detail.png">PNG</button>
+      <button id="dlSVG" class="ghost" data-i18n="detail.svg">SVG</button>
     </div>
-    <div class="small-hint">your stamp goes on your copy + the wall below</div>
+    <div class="small-hint" data-i18n="stamp.hint">your stamp goes on your copy + the wall below</div>
   </section>
 
   <section class="stamps">
-    <h3>On the wall</h3>
-    <div class="count" id="stampCount">today</div>
+    <h3 data-i18n="stamp.wallHeading">On the wall</h3>
+    <div class="count" id="stampCount" data-i18n="stamp.wallToday">today</div>
     <div id="stampList"></div>
   </section>
 
@@ -500,8 +500,8 @@
 </main>
 
 <div id="processing" class="processing-overlay">
-  <div class="step" id="processingStep">DRAWING</div>
-  <h2 id="processingMsg">Drawing today's almanac…</h2>
+  <div class="step" id="processingStep" data-i18n="alm.drawing.step">DRAWING</div>
+  <h2 id="processingMsg" data-i18n="alm.drawing.msg">Drawing today's almanac…</h2>
 </div>
 
 <div id="toast" class="toast"></div>
