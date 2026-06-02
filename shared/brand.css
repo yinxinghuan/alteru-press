@@ -1,0 +1,88 @@
+/* AlterU Press · Editorial / magazine spec-sheet style */
+
+:root {
+  --pink: #F5B1C7;
+  --pink-strong: #E8709A;
+  --purple: #7700A1;
+  --ink: #0F0F0F;
+  --ink-soft: #2A2A2A;
+  --mute: #6B6B6B;
+  --mute-2: #999999;
+  --line: #D9D9D9;
+  --line-soft: #ECECEC;
+  --paper: #F5F2EC;
+  --paper-2: #FAF8F3;
+  --white: #FFFFFF;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink); }
+a:hover { color: var(--purple); border-bottom-color: var(--purple); }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+.mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace; }
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+.rule { height: 1px; background: var(--ink); width: 100%; }
+.rule-soft { height: 1px; background: var(--line); width: 100%; }
+
+.press-mark {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.press-mark .accent { color: var(--pink-strong); }
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn:hover { background: var(--purple); border-color: var(--purple); }
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn.ghost:hover { background: var(--ink); color: var(--paper); }
+.btn.pink { background: var(--pink-strong); border-color: var(--pink-strong); }
+.btn.pink:hover { background: var(--purple); border-color: var(--purple); }
+
+@media (max-width: 720px) {
+  .wrap { padding: 0 20px; }
+}

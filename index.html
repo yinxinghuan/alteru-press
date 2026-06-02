@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlterU Press — A Newsstand of Tiny Tools</title>
+<meta name="description" content="AlterU Press: a small editorial publishing tiny tools that turn what you give them into something printable.">
+<meta name="theme-color" content="#F5B1C7">
+<meta property="og:title" content="AlterU Press">
+<meta property="og:description" content="A newsstand of tiny tools.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23F5B1C7'/%3E%3Ctext x='50' y='68' text-anchor='middle' font-family='Montserrat,sans-serif' font-weight='700' font-size='56' fill='%237700A1'%3EP%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/brand.css">
+<style>
+  .masthead {
+    padding: 56px 0 32px;
+    border-bottom: 3px double var(--ink);
+  }
+  .masthead .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 24px;
+  }
+  .masthead .issue {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mute);
+  }
+  .nameplate {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(56px, 9vw, 112px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-top: 14px;
+  }
+  .nameplate .press {
+    font-style: italic;
+    color: var(--pink-strong);
+  }
+  .tagline {
+    margin-top: 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--ink);
+    padding-top: 14px;
+  }
+
+  .lede {
+    padding: 64px 0 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .lede h2 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: clamp(24px, 3.4vw, 36px);
+    line-height: 1.25;
+    max-width: 720px;
+    letter-spacing: -0.01em;
+  }
+  .lede p {
+    margin-top: 24px;
+    max-width: 600px;
+    color: var(--mute);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .toc {
+    padding: 56px 0 32px;
+  }
+  .toc-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 36px;
+  }
+  .toc-head h3 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: -0.01em;
+  }
+  .toc-head .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--mute);
+    text-transform: uppercase;
+  }
+
+  .tool-card {
+    display: grid;
+    grid-template-columns: 80px 1fr 200px;
+    gap: 28px;
+    padding: 28px 0;
+    border-top: 1px solid var(--ink);
+    text-decoration: none;
+    color: var(--ink);
+    border-bottom: none;
+    transition: background 0.15s;
+  }
+  .tool-card:last-of-type { border-bottom: 1px solid var(--ink); }
+  .tool-card:hover {
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+  .tool-card .num {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 56px;
+    line-height: 1;
+    color: var(--pink-strong);
+  }
+  .tool-card .body h4 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+  .tool-card .body .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 12px;
+  }
+  .tool-card .body p {
+    color: var(--mute);
+    font-size: 14px;
+    max-width: 520px;
+    line-height: 1.65;
+  }
+  .tool-card .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--mute);
+    text-align: right;
+    line-height: 1.6;
+  }
+  .tool-card .meta .open {
+    display: inline-block;
+    margin-top: 14px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 2px;
+  }
+  .tool-card:hover .meta .open {
+    color: var(--purple);
+    border-bottom-color: var(--purple);
+  }
+
+  .tool-card.coming {
+    opacity: 0.42;
+    pointer-events: none;
+  }
+  .tool-card.coming .meta .open { color: var(--mute); border: none; }
+
+  .colophon {
+    margin-top: 80px;
+    padding: 32px 0 56px;
+    border-top: 3px double var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--mute);
+    text-transform: uppercase;
+  }
+  .colophon .right { display: flex; gap: 24px; }
+  .colophon a {
+    color: var(--mute);
+    border-bottom: 1px solid var(--line);
+  }
+  .colophon a:hover { color: var(--purple); border-bottom-color: var(--purple); }
+
+  @media (max-width: 720px) {
+    .tool-card {
+      grid-template-columns: 56px 1fr;
+      gap: 16px;
+    }
+    .tool-card .num { font-size: 40px; }
+    .tool-card .body h4 { font-size: 22px; }
+    .tool-card .meta {
+      grid-column: 1 / -1;
+      text-align: left;
+      padding-left: 72px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="row">
+      <div class="issue">Vol. 01 · No. 01</div>
+      <div class="issue">Est. 2026 · AlterU</div>
+    </div>
+    <div class="nameplate">AlterU <span class="press">Press</span></div>
+    <div class="tagline">A newsstand of tiny tools — give them something, get something printable back.</div>
+  </header>
+
+  <section class="lede">
+    <h2>Each issue is a small machine. You feed it. It returns a thing you could pin to a wall.</h2>
+    <p>AlterU Press publishes single-purpose tools — designed like printed matter, not like apps. Drop something in, the press turns it into a spec sheet, a field guide, a chart you didn't ask for but kind of wanted.</p>
+  </section>
+
+  <section class="toc">
+    <div class="toc-head">
+      <h3>In this issue</h3>
+      <div class="count">01 tool live · more in print</div>
+    </div>
+
+    <a class="tool-card" href="tools/image-spec/">
+      <div class="num">01</div>
+      <div class="body">
+        <div class="kicker">Tool · Visual</div>
+        <h4>Image Spec</h4>
+        <p>Drop in any picture. Get back a magazine spec sheet — dominant colours, brightness curve, composition, color temperature, and a short reading note. Suitable for framing.</p>
+      </div>
+      <div class="meta">
+        ~ 6 sec<br>
+        client-side<br>
+        + AI note
+        <div class="open">Open →</div>
+      </div>
+    </a>
+
+    <div class="tool-card coming">
+      <div class="num">02</div>
+      <div class="body">
+        <div class="kicker">Tool · Forthcoming</div>
+        <h4>Untitled No. 2</h4>
+        <p>The next press. Coming soon.</p>
+      </div>
+      <div class="meta">
+        TBA
+        <div class="open">In print</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    <div class="left">© 2026 AlterU Press · Set in Playfair Display, Montserrat, JetBrains Mono</div>
+    <div class="right">
+      <span>Powered by AlterU</span>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>
