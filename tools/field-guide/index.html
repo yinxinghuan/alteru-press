@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Field Guide — AlterU Press</title>
 <meta name="description" content="Photograph something. The press identifies it, names its parts, finds its cousins across the world, and types up a field guide.">
 <meta name="theme-color" content="#F5B1C7">
@@ -13,25 +13,34 @@
   body { background: var(--paper); }
 
   .topbar {
-    padding: 24px 0 18px;
+    padding: 18px 0 14px;
     border-bottom: 1px solid var(--ink);
     display: flex;
     justify-content: space-between;
     align-items: baseline;
+    gap: 10px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.12em;
+    font-size: 10px;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
   .topbar a { border: none; color: var(--ink); }
-  .topbar a:hover { color: var(--purple); }
-  .topbar .left { display: flex; gap: 18px; align-items: baseline; }
+  .topbar a:active { color: var(--purple); }
+  .topbar .left { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
   .topbar .crumb { color: var(--mute); }
+  .topbar .right {
+    color: var(--mute);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: right;
+  }
 
-  .head { padding: 48px 0 28px; border-bottom: 1px solid var(--ink); }
+  .head { padding: 32px 0 22px; border-bottom: 1px solid var(--ink); }
   .head .eyebrow {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 10.5px;
     letter-spacing: 0.16em;
     color: var(--purple);
     text-transform: uppercase;
@@ -39,69 +48,74 @@
   .head h1 {
     font-family: 'Playfair Display', serif;
     font-weight: 900;
-    font-size: clamp(48px, 8vw, 88px);
-    line-height: 0.95;
-    letter-spacing: -0.03em;
+    font-size: 44px;
+    line-height: 0.98;
+    letter-spacing: -0.025em;
     margin-top: 12px;
   }
   .head h1 .italic { font-style: italic; color: var(--pink-strong); }
   .head .lede {
-    margin-top: 22px;
+    margin-top: 16px;
     font-family: 'Playfair Display', serif;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1.5;
     color: var(--ink-soft);
-    max-width: 660px;
   }
   .head .stamp {
-    margin-top: 22px;
+    margin-top: 18px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    letter-spacing: 0.16em;
+    font-size: 10px;
+    letter-spacing: 0.12em;
     color: var(--mute);
     text-transform: uppercase;
-    display: flex;
-    gap: 22px;
-    flex-wrap: wrap;
+    line-height: 1.7;
   }
-  .head .stamp span::before { content: "·"; margin-right: 18px; color: var(--line); }
-  .head .stamp span:first-child::before { display: none; }
+  .head .stamp span:not(:last-child)::after { content: " · "; color: var(--line); }
 
-  .stage { padding: 48px 0 80px; }
+  .stage { padding: 28px 0 48px; }
 
   .dropzone {
     border: 2px dashed var(--ink);
     background: var(--paper-2);
-    padding: 72px 32px;
+    padding: 48px 24px;
     text-align: center;
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
   }
-  .dropzone:hover, .dropzone.hover { background: var(--white); border-color: var(--purple); }
+  .dropzone:active { background: var(--white); border-color: var(--purple); }
   .dropzone .big {
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    font-size: 32px;
-    line-height: 1.2;
-    margin-bottom: 14px;
+    font-size: 24px;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+  .dropzone .big .sub {
+    display: block;
+    color: var(--mute);
+    font-style: normal;
+    font-size: 14px;
+    margin-top: 6px;
   }
   .dropzone .small {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.14em;
+    font-size: 10px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--mute);
+    line-height: 1.5;
   }
   .dropzone input { display: none; }
 
   .demo-bar {
-    margin-top: 22px;
+    margin-top: 18px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--mute);
     text-align: center;
+    line-height: 1.8;
   }
   .demo-bar a {
     color: var(--purple);
@@ -110,92 +124,86 @@
   }
   .demo-bar::before { content: "or try a demo · "; color: var(--mute); }
 
-  .processing { text-align: center; padding: 80px 32px; }
+  .processing { text-align: center; padding: 60px 24px; }
   .processing .pulse {
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    font-size: 28px;
+    font-size: 22px;
     animation: pulse 1.3s ease-in-out infinite;
   }
   @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .result {
-    display: grid;
-    grid-template-columns: 1fr 280px;
-    gap: 40px;
-    align-items: start;
-  }
+  .result { display: block; }
   .result .poster-wrap {
     background: var(--white);
     border: 1px solid var(--ink);
-    padding: 0;
     overflow: hidden;
-    box-shadow: 6px 6px 0 var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    margin-bottom: 24px;
   }
   .result .poster-wrap svg { display: block; width: 100%; height: auto; }
+
   .result .sidebar h3 {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10.5px;
     letter-spacing: 0.18em;
     color: var(--purple);
     text-transform: uppercase;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
   }
   .result .sidebar p {
     font-size: 13px;
     color: var(--mute);
-    line-height: 1.65;
-    margin-bottom: 24px;
+    line-height: 1.6;
+    margin-bottom: 20px;
   }
-  .result .sidebar .actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
-  .result .sidebar .btn { justify-content: center; }
-  .result .sidebar .meta {
+  .result .actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .result .actions .btn { width: 100%; }
+  .result .meta {
     border-top: 1px solid var(--line);
-    padding-top: 20px;
+    padding-top: 16px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     color: var(--mute);
     line-height: 1.85;
   }
-  .result .sidebar .meta b { color: var(--ink); font-weight: 600; }
+  .result .meta b { color: var(--ink); font-weight: 600; }
 
   .wall {
-    margin-top: 96px;
-    padding-top: 48px;
+    margin-top: 56px;
+    padding-top: 32px;
     border-top: 3px double var(--ink);
   }
   .wall-head {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 32px;
+    margin-bottom: 22px;
   }
   .wall-head h3 {
     font-family: 'Playfair Display', serif;
     font-weight: 700;
-    font-size: 32px;
+    font-size: 24px;
     letter-spacing: -0.01em;
   }
   .wall-head .meta {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.12em;
+    font-size: 10px;
+    letter-spacing: 0.1em;
     color: var(--mute);
     text-transform: uppercase;
   }
   .wall-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
   }
   .wall-card {
     background: var(--white);
     border: 1px solid var(--ink);
-    padding: 14px;
+    padding: 10px;
     cursor: pointer;
-    transition: transform 0.15s;
   }
-  .wall-card:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); }
   .wall-card .thumb {
     width: 100%;
     aspect-ratio: 1;
@@ -206,9 +214,9 @@
   .wall-card .title {
     font-family: 'Playfair Display', serif;
     font-weight: 700;
-    font-size: 17px;
+    font-size: 14px;
     line-height: 1.2;
-    margin: 12px 0 6px;
+    margin: 10px 0 4px;
     color: var(--ink);
     min-width: 0;
     overflow: hidden;
@@ -218,9 +226,10 @@
   .wall-card .meta {
     display: flex;
     justify-content: space-between;
+    gap: 6px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    letter-spacing: 0.1em;
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
     color: var(--mute);
     text-transform: uppercase;
   }
@@ -231,52 +240,49 @@
     white-space: nowrap;
   }
   .wall-empty {
+    grid-column: 1 / -1;
     border: 1px dashed var(--line);
-    padding: 40px;
+    padding: 32px 20px;
     text-align: center;
     color: var(--mute);
     font-style: italic;
+    font-size: 14px;
   }
 
   .colophon {
-    margin-top: 80px;
-    padding: 28px 0 48px;
+    margin-top: 48px;
+    padding: 22px 0 36px;
     border-top: 3px double var(--ink);
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 0.08em;
     color: var(--mute);
     text-transform: uppercase;
+    line-height: 1.8;
   }
 
   .toast {
     position: fixed;
-    bottom: 30px;
+    bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
     background: var(--ink);
     color: var(--paper);
-    padding: 12px 22px;
+    padding: 11px 18px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
+    font-size: 11px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s;
     z-index: 100;
+    max-width: 90%;
+    text-align: center;
   }
   .toast.show { opacity: 1; }
 
   .hidden { display: none !important; }
-
-  @media (max-width: 860px) {
-    .result { grid-template-columns: 1fr; }
-  }
 </style>
 </head>
 <body>
@@ -286,20 +292,18 @@
   <nav class="topbar">
     <div class="left">
       <a href="../../">AlterU Press</a>
-      <span class="crumb">→ Issue 01</span>
       <span class="crumb">→ Field Guide</span>
     </div>
-    <div class="right" id="userChip">anon · independent</div>
+    <div class="right" id="userChip">anon</div>
   </nav>
 
   <header class="head">
     <div class="eyebrow">Tool 01 · Cultural</div>
     <h1>A <span class="italic">Picture</span>, Guided.</h1>
-    <p class="lede">Photograph the most ordinary thing in the room. The press identifies it, names its parts, finds its cousins in eight cultures, and types up a one-page field guide. Suitable for framing, suitable for the back of a magazine.</p>
+    <p class="lede">Photograph the most ordinary thing in the room. The press identifies it, names its parts, finds its cousins, types up a field guide.</p>
     <div class="stamp">
       <span>Vision: Claude</span>
-      <span>Cultural cross-reference</span>
-      <span>~10 seconds</span>
+      <span>~10 sec</span>
       <span>Printable</span>
     </div>
   </header>
@@ -307,9 +311,9 @@
   <main class="stage">
 
     <section id="upload" class="dropzone" tabindex="0">
-      <input id="file" type="file" accept="image/*">
-      <div class="big">Drop a photograph here<br><span style="color:var(--mute);font-style:normal;font-size:18px;">a hat, a teapot, a bag, a chair — anything held or worn</span></div>
-      <div class="small">JPG · PNG · WEBP · the photo never leaves your country it just visits a model</div>
+      <input id="file" type="file" accept="image/*" capture="environment">
+      <div class="big">Take or drop a photograph<span class="sub">a hat, a teapot, a bag, a chair</span></div>
+      <div class="small">JPG · PNG · WEBP</div>
     </section>
     <div class="demo-bar" id="demoBar"></div>
 
@@ -323,9 +327,9 @@
         <h3>Take it with you</h3>
         <p>Download the field guide, post it to the wall, or share it to the feed.</p>
         <div class="actions">
+          <button class="btn pink" id="publishBtn">Publish to wall</button>
           <button class="btn" id="dlPNG">Download PNG</button>
           <button class="btn ghost" id="dlSVG">Download SVG</button>
-          <button class="btn pink" id="publishBtn">Publish to wall</button>
           <button class="btn ghost hidden" id="shareFeedBtn">Share to feed</button>
           <button class="btn ghost" id="resetBtn">File another</button>
         </div>
@@ -344,8 +348,8 @@
   </section>
 
   <footer class="colophon">
-    <div>© 2026 AlterU Press · Issue 01 — Field Guide</div>
-    <div>v2.0 · Vision: Claude · Set in Playfair · Montserrat · JetBrains Mono</div>
+    © 2026 AlterU Press · Issue 01 — Field Guide<br>
+    v2.0 · Vision: Claude
   </footer>
 
 </div>

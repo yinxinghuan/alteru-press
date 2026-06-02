@@ -1,4 +1,4 @@
-/* AlterU Press · Editorial / magazine spec-sheet style */
+/* AlterU Press · brand styles · mobile-first */
 
 :root {
   --pink: #F5B1C7;
@@ -21,14 +21,15 @@ html, body {
   background: var(--paper);
   color: var(--ink);
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
 }
 
 a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink); }
-a:hover { color: var(--purple); border-bottom-color: var(--purple); }
+a:active { color: var(--purple); border-bottom-color: var(--purple); }
 
 button {
   font-family: inherit;
@@ -36,6 +37,7 @@ button {
   border: none;
   background: none;
   color: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace; }
@@ -57,32 +59,31 @@ button {
 .press-mark .accent { color: var(--pink-strong); }
 
 .wrap {
-  max-width: 1080px;
+  width: 100%;
+  max-width: 480px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 20px;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 18px;
+  min-height: 48px;
+  padding: 14px 22px;
   border: 1px solid var(--ink);
   background: var(--ink);
   color: var(--paper);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
-.btn:hover { background: var(--purple); border-color: var(--purple); }
+.btn:active { background: var(--purple); border-color: var(--purple); }
 .btn.ghost { background: transparent; color: var(--ink); }
-.btn.ghost:hover { background: var(--ink); color: var(--paper); }
+.btn.ghost:active { background: var(--ink); color: var(--paper); }
 .btn.pink { background: var(--pink-strong); border-color: var(--pink-strong); }
-.btn.pink:hover { background: var(--purple); border-color: var(--purple); }
-
-@media (max-width: 720px) {
-  .wrap { padding: 0 20px; }
-}
+.btn.pink:active { background: var(--purple); border-color: var(--purple); }
