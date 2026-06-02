@@ -1,7 +1,7 @@
 // AlterU Press · Image Spec · app glue
 
 import { analyzeImage } from "./analyze.js";
-import { buildPosterSVG } from "./poster.js";
+import { buildPosterSVG, POSTER_W, POSTER_H } from "./poster.js";
 import * as Wall from "./wall.js";
 import { aigramCtx, fetchUser, postToFeed } from "./aigram.js";
 
@@ -154,15 +154,14 @@ async function downloadPNG() {
   const svgUrl = URL.createObjectURL(svgBlob);
   const img = await loadImage(svgUrl);
 
-  const W = 880, H = 1240;
   const canvas = document.createElement("canvas");
-  canvas.width = W * scale;
-  canvas.height = H * scale;
+  canvas.width = POSTER_W * scale;
+  canvas.height = POSTER_H * scale;
   const ctx = canvas.getContext("2d");
   ctx.scale(scale, scale);
   ctx.fillStyle = "#F5F2EC";
-  ctx.fillRect(0, 0, W, H);
-  ctx.drawImage(img, 0, 0, W, H);
+  ctx.fillRect(0, 0, POSTER_W, POSTER_H);
+  ctx.drawImage(img, 0, 0, POSTER_W, POSTER_H);
   URL.revokeObjectURL(svgUrl);
 
   const blob = await new Promise(r => canvas.toBlob(r, "image/png", 0.96));
@@ -242,7 +241,7 @@ function renderWall() {
 
 function generateReadingNote(spec) {
   const top = spec.palette[0];
-  const second = spec.palette[1];
+  const second = spec.palette.slice(1).find(c => c.name !== top?.name);
   const adj = pick([
     "Quiet", "Restless", "Composed", "Punchy", "Tender", "Crisp", "Hushed",
     "Slow", "Brash", "Considered", "Tilted", "Patient"

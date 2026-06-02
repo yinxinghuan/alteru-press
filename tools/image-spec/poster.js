@@ -2,8 +2,10 @@
 // Produces a self-contained SVG (image embedded as base64) that can be
 // downloaded directly or rasterized to PNG.
 
-const W = 880;
-const H = 1240;
+export const POSTER_W = 880;
+export const POSTER_H = 1520;
+const W = POSTER_W;
+const H = POSTER_H;
 const PAD = 56;
 
 export function buildPosterSVG(spec, imgDataUrl, opts = {}) {
