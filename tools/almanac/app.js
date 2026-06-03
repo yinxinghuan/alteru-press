@@ -1,7 +1,7 @@
 // AlterU Press · Almanac · app glue
 // Open → fetch today's canonical page → render poster → enable stamp.
 
-import { getTodayPage } from "./almanac.js";
+import { getInstantPage, augmentPage } from "./almanac.js";
 import { buildAlmanacSVG, POSTER_W, POSTER_H } from "./poster.js";
 import { aigramCtx, fetchUser } from "../field-guide/aigram.js";
 import { t } from "../../shared/i18n.js";
@@ -34,19 +34,17 @@ const ILLUSTRATION_BASE = new URL("img/daily/", import.meta.url).href;
 init();
 
 async function init() {
-  // Aigram identity bootstrap — only show the chip when actually logged in
+  // Aigram identity bootstrap — fire-and-forget so the page can render
+  // even if the bridge is slow (up to 10s timeout otherwise).
   $("userChip").classList.add("hidden");
   $("userChip").textContent = "";
   if (aigramCtx.isInside) {
-    try {
-      const u = await fetchUser();
-      if (u) {
-        state.user = u;
-        $("userChip").textContent = `@${u.handle}`;
-        $("userChip").classList.remove("hidden");
-        $("userChip").removeAttribute("data-i18n");
-      }
-    } catch {}
+    fetchUser().then((u) => {
+      if (!u) return;
+      state.user = u;
+      $("userChip").textContent = `@${u.handle}`;
+      $("userChip").classList.remove("hidden");
+    }).catch(() => {});
   }
 
   $("publishStamp").addEventListener("click", stamp);
@@ -60,13 +58,23 @@ async function init() {
   });
 
   try {
-    const page = await getTodayPage(new Date());
+    const now = new Date();
+    // Phase 1 · render the page IMMEDIATELY with synchronous local data.
+    // Lunar / jieqi / wikipedia might be blocked by Aigram's CSP; we
+    // don't make the user wait on them.
+    const page = getInstantPage(now);
     state.page = page;
     render();
-    await renderStampList();
-    // Each user triggers their own gen-image for today.
-    // In Aigram: hits the platform proxy → user gets a fresh illustration.
-    // Standalone preview: falls back to committed PNG demo.
+    renderStampList();
+
+    // Phase 2 · augment with lunar / jieqi / wiki async — re-render when
+    // each piece resolves. Failures leave the fallback values; no toast.
+    augmentPage(page, now).then(() => {
+      state.page = page;
+      render();
+    }).catch(() => {});
+
+    // Phase 3 · daily illustration (gen-image), parallel to augmentation.
     requestUserIllustration(page).then((url) => {
       if (url) {
         state.illustrationUrl = url;
@@ -75,7 +83,7 @@ async function init() {
       hideProcessing();
     });
   } catch (e) {
-    console.error(e);
+    console.error("almanac init failed", e);
     toast(t("stamp.toast.failed"));
     hideProcessing();
   }

@@ -146,7 +146,16 @@ export async function fetchWikipediaOnThisDay(date) {
   const dd = String(date.getDate()).padStart(2, "0");
   try {
     const url = `https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${mm}/${dd}`;
-    const r = await fetch(url);
+    // 5s timeout — Aigram CSP may silently drop external fetches; without
+    // a timeout the whole getTodayPage() Promise.all stalls forever.
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 5000);
+    let r;
+    try {
+      r = await fetch(url, { signal: ctrl.signal });
+    } finally {
+      clearTimeout(tid);
+    }
     if (!r.ok) throw new Error("wiki " + r.status);
     const data = await r.json();
     const events = (data.events || []).filter(e => e.year && e.text);

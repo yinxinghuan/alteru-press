@@ -34,20 +34,18 @@ let state = {
 init();
 
 async function init() {
-  // Aigram identity bootstrap — only show the chip when actually logged in
+  // Aigram identity bootstrap — fire-and-forget so the page renders
+  // immediately even if the bridge is slow.
   userChip.classList.add("hidden");
   userChip.textContent = "";
   if (aigramCtx.isInside) {
-    try {
-      const u = await fetchUser();
-      if (u) {
-        state.user = u;
-        userChip.textContent = `@${u.handle}`;
-        userChip.classList.remove("hidden");
-        userChip.removeAttribute("data-i18n");
-        shareFeedBtn.classList.remove("hidden");
-      }
-    } catch {}
+    fetchUser().then((u) => {
+      if (!u) return;
+      state.user = u;
+      userChip.textContent = `@${u.handle}`;
+      userChip.classList.remove("hidden");
+      shareFeedBtn.classList.remove("hidden");
+    }).catch(() => {});
   }
 
   // Demo bar — keep object names English (decorative), wrap with localized prefix

@@ -22,7 +22,13 @@ let LunarMod = null;
 async function ensureLib() {
   if (LunarMod) return LunarMod;
   try {
-    LunarMod = await import("https://esm.sh/lunar-typescript@1.7.5");
+    // Race the import against a 5s timeout. Aigram's CSP may silently
+    // block esm.sh — without a timeout the import would hang forever
+    // and the whole page stays at "Reading today's page…".
+    LunarMod = await Promise.race([
+      import("https://esm.sh/lunar-typescript@1.7.5"),
+      new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 5000)),
+    ]);
   } catch (e) {
     console.warn("lunar-typescript failed to load:", e);
     LunarMod = null;
