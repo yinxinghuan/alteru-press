@@ -2,13 +2,13 @@
 // Mobile-first instant-use tool: tap → camera → AI dossier → specimen card →
 // publish to cross-user wall. Detail overlay shows full field guide.
 
-import { buildPosterSVG, POSTER_W, POSTER_H } from "./poster.js";
-import * as Wall from "./wall.js";
-import { aigramCtx, fetchUser, postToFeed } from "./aigram.js";
-import { openAigramProfile } from "../../shared/bridge.js";
-import { fetchDossier, DEMO_KEYS, DEMOS } from "./guide.js";
-import { DEMO_ILLUSTRATIONS, svgToDataUrl } from "./illustrations.js";
-import { t, applyI18n } from "../../shared/i18n.js";
+import { buildPosterSVG, POSTER_W, POSTER_H } from "./poster.js?v=p3";
+import * as Wall from "./wall.js?v=p3";
+import { aigramCtx, fetchUser, postToFeed } from "./aigram.js?v=p3";
+import { openAigramProfile } from "../../shared/bridge.js?v=p3";
+import { fetchDossier, DEMO_KEYS, DEMOS } from "./guide.js?v=p3";
+import { DEMO_ILLUSTRATIONS, svgToDataUrl } from "./illustrations.js?v=p3";
+import { t, applyI18n } from "../../shared/i18n.js?v=p3";
 
 const $ = (id) => document.getElementById(id);
 

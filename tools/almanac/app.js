@@ -1,13 +1,13 @@
 // AlterU Press · Almanac · app glue
 // Open → fetch today's canonical page → render poster → enable stamp.
 
-import { getInstantPage, augmentPage } from "./almanac.js";
-import { buildAlmanacSVG, POSTER_W, POSTER_H } from "./poster.js";
-import { aigramCtx, fetchUser } from "../field-guide/aigram.js";
-import { t } from "../../shared/i18n.js";
-import { buildIllustrationPrompt } from "./seasons.js";
-import { createSave, listCrossUserSaves, fetchUserInfo, currentTelegramId } from "../../shared/save.js";
-import { openAigramProfile, isInAigram } from "../../shared/bridge.js";
+import { getInstantPage, augmentPage } from "./almanac.js?v=p3";
+import { buildAlmanacSVG, POSTER_W, POSTER_H } from "./poster.js?v=p3";
+import { aigramCtx, fetchUser } from "../field-guide/aigram.js?v=p3";
+import { t } from "../../shared/i18n.js?v=p3";
+import { buildIllustrationPrompt } from "./seasons.js?v=p3";
+import { createSave, listCrossUserSaves, fetchUserInfo, currentTelegramId } from "../../shared/save.js?v=p3";
+import { openAigramProfile, isInAigram } from "../../shared/bridge.js?v=p3";
 
 const almanacSave = createSave("almanac");
 let myStamps = {}; // { [dateKey]: { note, time, createdAt } }
