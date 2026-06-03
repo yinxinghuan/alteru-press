@@ -400,8 +400,8 @@ async function renderStampList() {
     <div class="stamp-card">
       <div class="row">${author}<span class="when">${escapeHtml(s.time || "")}</span></div>
       <div class="note">${escapeHtml(s.note)}</div>
-    </div>
-  `).join("");
+    </div>`;
+  }).join("");
 }
 
 async function downloadPNG() {
