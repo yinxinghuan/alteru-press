@@ -10,15 +10,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --pink: #F5B1C7;
-    --pink-strong: #E8709A;
-    --purple: #7700A1;
-    --ink: #0F0F0F;
-    --ink-soft: #2A2A2A;
-    --mute: #6B6B6B;
-    --line: #D9D9D9;
-    --paper: #F5F2EC;
-    --paper-2: #FAF8F3;
+    /* 黑历 palette — warm aged paper + 老黄历 deep red + ink */
+    --paper: #F4ECD3;
+    --paper-2: #FAF5DF;
+    --paper-soft: #FCF7E2;
+    --ink: #1A1410;
+    --ink-soft: #4A3F30;
+    --mute: #837860;
+    --red: #B82018;
+    --red-soft: #D4584B;
+    --red-bg: rgba(184, 32, 24, 0.08);
+    --gold: #B79460;
+    --line: #C8B888;
+    /* compat for shared brand.css */
+    --pink: var(--red);
+    --pink-strong: var(--red);
+    --purple: var(--red);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body {
@@ -109,241 +116,389 @@
   }
   @keyframes blink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-  /* ───────────────── Page view (native HTML, mobile-readable) ───────────────── */
-  .page-wrap { padding: 8px 0 0; }
+  /* ───────────────── Black-calendar leaf (黑历) ───────────────── */
+  .page-wrap { padding: 0; }
   .alm {
     background: var(--paper);
-    padding: 18px 18px 24px;
+    padding: 0 16px 24px;
+    position: relative;
   }
-  .alm .head { margin-bottom: 22px; }
-  .alm .head .row {
+
+  /* Top stripe — month label + tiny meta */
+  .alm .top-stripe {
     display: flex;
-    justify-content: space-between;
     align-items: baseline;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--mute);
-    margin-bottom: 14px;
-    padding-bottom: 10px;
+    justify-content: space-between;
+    padding: 18px 0 12px;
+    margin-bottom: 8px;
     border-bottom: 1px solid var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
   }
-  .alm .head h1 {
+  .alm .top-stripe .month-en {
     font-family: 'Playfair Display', serif;
     font-weight: 900;
-    font-size: 42px;
-    line-height: 1.0;
-    letter-spacing: -0.02em;
-  }
-  .alm .head h1 em {
     font-style: italic;
-    color: var(--pink-strong);
-    display: block;
-  }
-  .alm .moon-chip {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 6px;
-    margin-top: 12px;
-    padding: 6px 12px;
-    border: 1px solid var(--ink);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    text-transform: none;
     color: var(--ink);
   }
-  .alm .moon-chip em { font-style: italic; color: var(--pink-strong); }
 
+  /* Hero — giant red date + lunar block beside */
+  .alm .hero {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 22px 0 18px;
+  }
+  .alm .hero .date-num {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 168px;
+    line-height: 0.85;
+    color: var(--red);
+    letter-spacing: -0.08em;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.04);
+    margin: 0;
+  }
+  .alm .hero .right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  @media (max-width: 400px) {
+    .alm .hero { gap: 18px; }
+    .alm .hero .date-num { font-size: 140px; }
+  }
+  @media (max-width: 360px) {
+    .alm .hero .date-num { font-size: 120px; }
+  }
+  .alm .hero .weekday {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .alm .hero .weekday-zh {
+    font-size: 16px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .alm .hero .lunar-line {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--ink-soft);
+  }
+  .alm .hero .ganzhi-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+  }
+  .alm .hero .moon {
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .alm .hero .moon em { font-style: italic; color: var(--ink); text-transform: none; letter-spacing: 0; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 13px; }
+
+  /* Sun/moon inline row */
+  .alm .sun-moon-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 14px 0;
+    margin-bottom: 18px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .alm .sun-moon-row .cell {
+    text-align: center;
+  }
+  .alm .sun-moon-row .cell .k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--mute);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .alm .sun-moon-row .cell .v {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+  }
+
+  /* 宜 / 忌 stacked rows */
+  .alm .yj-row {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .alm .yj-row .label {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 28px;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 48px;
+  }
+  .alm .yj-row .label.yi { color: var(--red); }
+  .alm .yj-row .label.ji { color: var(--ink); }
+  .alm .yj-row .label .en {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    color: var(--mute);
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+  .alm .yj-row .items {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .alm .yj-row .items .item {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--ink);
+    line-height: 1.35;
+  }
+  .alm .yj-row .items .item .en {
+    font-family: 'Montserrat', sans-serif;
+    font-style: italic;
+    font-size: 11px;
+    color: var(--mute);
+    margin-left: 6px;
+    font-weight: 400;
+  }
+
+  /* Illustration — corner ornament aspect */
   .alm .illus {
     display: block;
     width: 100%;
     height: auto;
-    background: #F0EAD8;
+    margin: 20px 0;
     border: 1px solid var(--ink);
-    margin: 20px 0 8px;
+    box-shadow: 3px 3px 0 var(--red);
   }
   .alm .illus-fallback {
     aspect-ratio: 1;
-    background: #E8DEC7;
-    border: 1px solid var(--ink);
-    margin: 20px 0 8px;
+    background: var(--paper-2);
+    border: 1px dashed var(--gold);
+    margin: 20px 0;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'Playfair Display', serif;
     font-style: italic;
     color: var(--mute);
-    font-size: 16px;
+    font-size: 14px;
   }
 
-  .alm section { padding-top: 22px; margin-top: 22px; border-top: 1px solid var(--ink); }
-  .alm section h3 {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11.5px;
-    letter-spacing: 0.18em;
-    color: var(--purple);
-    text-transform: uppercase;
-    margin-bottom: 14px;
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
+  /* History (历史上的今天) */
+  .alm .otd-block {
+    padding: 18px 0;
+    border-top: 1px solid var(--line);
   }
-  .alm section h3 .meta { color: var(--mute); font-weight: 400; letter-spacing: 0.14em; }
-
-  .alm .lunar .ml { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 700; font-size: 24px; margin-bottom: 6px; }
-  .alm .lunar .gz { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink-soft); letter-spacing: 0.05em; }
-
-  .alm .sm { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .alm .sm .item .k {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    color: var(--mute);
-    text-transform: uppercase;
-    margin-bottom: 2px;
-  }
-  .alm .sm .item .v {
+  .alm .otd-block .h {
     font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    font-size: 22px;
+    font-weight: 900;
+    font-size: 20px;
     color: var(--ink);
-  }
-
-  .alm .yj { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  .alm .yj .col h4 {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    letter-spacing: 0.18em;
-    color: var(--purple);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-  .alm .yj .col .item {
-    margin-bottom: 10px;
-  }
-  .alm .yj .col .item .zh {
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--ink);
-  }
-  .alm .yj .col .item .en {
-    font-family: 'Montserrat', sans-serif;
-    font-style: italic;
-    font-size: 12.5px;
-    color: var(--mute);
-  }
-
-  .alm .otd .item {
     margin-bottom: 12px;
+  }
+  .alm .otd-block .h em {
+    display: inline-block;
+    color: var(--red);
+    font-style: normal;
+  }
+  .alm .otd-block .item {
+    margin-bottom: 10px;
     font-size: 14.5px;
     line-height: 1.55;
     color: var(--ink-soft);
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    column-gap: 10px;
   }
-  .alm .otd .item b {
+  .alm .otd-block .item b {
     font-family: 'JetBrains Mono', monospace;
-    font-weight: 600;
-    color: var(--ink);
-    margin-right: 6px;
-    letter-spacing: 0.04em;
+    font-weight: 700;
+    color: var(--red);
+    line-height: 1.55;
+  }
+  .alm .otd-block .item span.text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
-  .alm .note {
+  /* Editor's note — red border card */
+  .alm .note-card {
+    margin-top: 18px;
+    padding: 18px 22px;
+    background: var(--red-bg);
+    border-left: 4px solid var(--red);
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    font-size: 18px;
+    font-size: 17px;
     line-height: 1.5;
     color: var(--ink);
   }
+  .alm .note-card::before {
+    content: "“";
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-style: normal;
+    font-size: 48px;
+    line-height: 0.4;
+    color: var(--red);
+    margin-bottom: 8px;
+  }
 
-  .alm .filed {
-    margin-top: 24px;
-    padding-top: 14px;
-    border-top: 3px double var(--ink);
+  /* Personal stamp on the page (when stamped) */
+  .alm .stamp-mark {
+    margin-top: 26px;
+    padding: 18px 22px;
+    border: 2px solid var(--red);
+    border-radius: 4px;
+    position: relative;
+    background: var(--paper-soft);
+    transform: rotate(-1.5deg);
+  }
+  .alm .stamp-mark .by {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    letter-spacing: 0.12em;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .alm .stamp-mark .note {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+  }
+
+  /* Filed footer */
+  .alm .filed {
+    margin-top: 28px;
+    padding-top: 14px;
+    border-top: 1px solid var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--mute);
     text-align: center;
   }
 
-  .alm .stamp-box {
-    margin-top: 20px;
-    padding: 14px;
-    background: var(--paper-2);
-    border: 1px dashed var(--ink);
-  }
-  .alm .stamp-box .by {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--pink-strong);
-    margin-bottom: 6px;
-  }
-  .alm .stamp-box .note {
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    font-style: normal;
-    font-size: 20px;
-    color: var(--ink);
-  }
-
-  /* ───────────────── Stamp composer ───────────────── */
+  /* ───────────────── Stamp composer (signature feel) ───────────────── */
   .stamp-row {
-    padding: 24px 16px 8px;
+    padding: 24px 16px 12px;
+    background: var(--paper-soft);
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
   }
   .stamp-row h3 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: var(--ink);
+  }
+  .stamp-row h3 em {
+    color: var(--red);
+    font-style: italic;
+  }
+  .stamp-row .stamp-sub {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    color: var(--purple);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--mute);
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
   .stamp-row textarea {
     width: 100%;
-    background: var(--paper-2);
-    border: 1px solid var(--ink);
-    padding: 12px 14px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--ink);
+    padding: 10px 0;
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    font-size: 17px;
+    font-size: 18px;
     line-height: 1.4;
     color: var(--ink);
     resize: none;
-    height: 90px;
+    height: 70px;
     outline: none;
   }
-  .stamp-row textarea:focus { background: var(--white, #fff); border-color: var(--purple); }
+  .stamp-row textarea::placeholder { color: var(--mute); }
+  .stamp-row textarea:focus { border-bottom-color: var(--red); }
   .stamp-row .stamp-actions {
     display: flex;
     gap: 8px;
-    margin-top: 10px;
+    margin-top: 14px;
   }
   .stamp-row .stamp-actions button {
     flex: 1;
     min-height: 44px;
-    background: var(--pink-strong);
-    color: white;
-    font-family: inherit;
-    font-size: 12px;
+    background: var(--red);
+    color: var(--paper);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
     font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    padding: 0 6px;
+    white-space: nowrap;
+  }
+  .stamp-row .stamp-actions button:active { opacity: 0.7; }
+  .stamp-row .share-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .stamp-row .share-row button {
+    flex: 1;
+    min-height: 38px;
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    border-radius: 8px;
+    border-radius: 2px;
   }
-  .stamp-row .stamp-actions button.ghost {
-    background: transparent;
-    color: var(--ink);
-    border: 1px solid var(--ink);
-  }
-  .stamp-row .stamp-actions button:active { background: var(--purple); color: white; border-color: var(--purple); }
+  .stamp-row .share-row button:active { color: var(--red); border-color: var(--red); }
   .stamp-row .small-hint {
-    margin-top: 8px;
+    margin-top: 10px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     color: var(--mute);
@@ -354,29 +509,33 @@
   /* ───────────────── Wall of stamps ───────────────── */
   .stamps {
     padding: 32px 16px 16px;
-    border-top: 3px double var(--ink);
-    margin-top: 32px;
+    margin-top: 4px;
   }
   .stamps h3 {
     font-family: 'Playfair Display', serif;
-    font-weight: 700;
+    font-weight: 900;
     font-size: 22px;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
+    color: var(--ink);
+  }
+  .stamps h3 em {
+    color: var(--red);
+    font-style: italic;
   }
   .stamps .count {
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.14em;
     color: var(--mute);
     text-transform: uppercase;
     margin-bottom: 18px;
   }
   .stamp-card {
-    background: #FFFEF8;
+    background: var(--paper-soft);
     border: 1px solid var(--ink);
-    border-radius: 6px;
+    border-left: 4px solid var(--red);
     padding: 14px 16px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
   .stamp-card .row {
     display: flex;
@@ -509,8 +668,10 @@
     <textarea id="stampInput" data-i18n-attr="placeholder:stamp.placeholder" placeholder="one line · max 60 chars" maxlength="60"></textarea>
     <div class="stamp-actions">
       <button id="publishStamp" data-i18n="stamp.cta">Stamp</button>
-      <button id="dlPNG" class="ghost" data-i18n="detail.png">PNG</button>
-      <button id="dlSVG" class="ghost" data-i18n="detail.svg">SVG</button>
+    </div>
+    <div class="share-row">
+      <button id="dlPNG" class="ghost" data-i18n="detail.png">Save PNG</button>
+      <button id="dlSVG" class="ghost" data-i18n="detail.svg">Save SVG</button>
     </div>
     <div class="small-hint" data-i18n="stamp.hint">your stamp goes on your copy + the wall below</div>
   </section>
@@ -534,7 +695,7 @@
 
 <div id="toast" class="toast"></div>
 
-<script type="module" src="app.js?v=p3"></script>
+<script type="module" src="app.js?v=p4"></script>
 
 </body>
 </html>

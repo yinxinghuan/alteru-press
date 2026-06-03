@@ -156,88 +156,97 @@ function render() {
 
 function renderAlmanacHTML(p, opts = {}) {
   const e = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
-  const dateStr = `${p.date.y}.${String(p.date.m).padStart(2,"0")}.${String(p.date.d).padStart(2,"0")}`;
   const phase = p.sunMoon.moon;
 
-  const lunarBlock = p.lunar.monthName && p.lunar.dayName ? `
-    <section class="lunar">
-      <h3>${e(t("alm.section.lunar"))} ${p.jieqi.next ? `<span class="meta">${e(p.jieqi.next)} · ${e(t("alm.daysUntil", { n: p.jieqi.daysUntilNext }))}</span>` : ""}</h3>
-      <div class="ml">农历 ${e(p.lunar.monthName)}${e(p.lunar.dayName)}</div>
-      <div class="gz">${e(p.ganzhi.year)} 年 · ${e(p.ganzhi.month)} 月 · ${e(p.ganzhi.day)} 日</div>
-    </section>` : "";
+  // Hero — giant red date + lunar + ganzhi + moon
+  const lunarLine = (p.lunar.monthName && p.lunar.dayName)
+    ? `<div class="lunar-line">农历 ${e(p.lunar.monthName)}${e(p.lunar.dayName)}</div>`
+    : "";
+  const ganzhiLine = p.ganzhi.year ? `
+    <div class="ganzhi-line">${e(p.ganzhi.year)}年${p.ganzhi.day ? " · " + e(p.ganzhi.day) + "日" : ""}${p.jieqi && p.jieqi.next ? " · " + e(p.jieqi.next) : ""}</div>
+  ` : "";
 
-  const smBlock = `
-    <section>
-      <h3>${e(t("alm.section.sunmoon"))}</h3>
-      <div class="sm">
-        <div class="item"><div class="k">${e(t("alm.sm.sunrise"))}</div>  <div class="v">${e(p.sunMoon.sunrise || "—")}</div></div>
-        <div class="item"><div class="k">${e(t("alm.sm.sunset"))}</div>   <div class="v">${e(p.sunMoon.sunset || "—")}</div></div>
-        <div class="item"><div class="k">${e(t("alm.sm.moonrise"))}</div> <div class="v">${e(p.sunMoon.moonrise || "—")}</div></div>
-        <div class="item"><div class="k">${e(t("alm.sm.moonset"))}</div>  <div class="v">${e(p.sunMoon.moonset || "—")}</div></div>
+  const hero = `
+    <div class="hero">
+      <div class="date-num">${p.date.d}</div>
+      <div class="right">
+        <div class="weekday">${e(p.date.monthEn)} · ${e(p.date.ordinalEn)}.</div>
+        <div class="weekday-zh">${e(p.date.weekday || "")}</div>
+        ${lunarLine}
+        ${ganzhiLine}
+        <div class="moon">◐ <em>${e(phase.name)}</em> · ${phase.illumination}${e(t("alm.moon.lit"))}</div>
       </div>
-    </section>`;
+    </div>`;
 
-  const yi = (p.yi || []).map(x => `
-    <div class="item"><div class="zh">· ${e(x.zh)}</div><div class="en">${e(x.en)}</div></div>
+  // Sun/moon row
+  const sunMoonRow = `
+    <div class="sun-moon-row">
+      <div class="cell"><div class="k">${e(t("alm.sm.sunrise"))}</div><div class="v">${e(p.sunMoon.sunrise || "—")}</div></div>
+      <div class="cell"><div class="k">${e(t("alm.sm.sunset"))}</div><div class="v">${e(p.sunMoon.sunset || "—")}</div></div>
+      <div class="cell"><div class="k">${e(t("alm.sm.moonrise"))}</div><div class="v">${e(p.sunMoon.moonrise || "—")}</div></div>
+      <div class="cell"><div class="k">${e(t("alm.sm.moonset"))}</div><div class="v">${e(p.sunMoon.moonset || "—")}</div></div>
+    </div>`;
+
+  // 宜 row
+  const yiItems = (p.yi || []).map(x => `
+    <span class="item">${e(x.zh)}<span class="en">${e(x.en)}</span></span>
   `).join("");
-  const ji = (p.ji || []).map(x => `
-    <div class="item"><div class="zh">· ${e(x.zh)}</div><div class="en">${e(x.en)}</div></div>
+  const jiItems = (p.ji || []).map(x => `
+    <span class="item">${e(x.zh)}<span class="en">${e(x.en)}</span></span>
   `).join("");
 
-  const yjBlock = `
-    <section>
-      <h3>${e(t("alm.section.yj"))}</h3>
-      <div class="yj">
-        <div class="col"><h4>${e(t("alm.yj.yi"))}</h4>${yi}</div>
-        <div class="col"><h4>${e(t("alm.yj.ji"))}</h4>${ji}</div>
-      </div>
-    </section>`;
+  const yjRows = `
+    <div class="yj-row">
+      <div class="label yi">宜<span class="en">${e(t("alm.yj.yi"))}</span></div>
+      <div class="items">${yiItems || `<span class="item" style="color:var(--mute);font-style:italic">—</span>`}</div>
+    </div>
+    <div class="yj-row">
+      <div class="label ji">忌<span class="en">${e(t("alm.yj.ji"))}</span></div>
+      <div class="items">${jiItems || `<span class="item" style="color:var(--mute);font-style:italic">—</span>`}</div>
+    </div>`;
 
-  const otd = (p.onThisDay || []).slice(0, 3).map(x => {
-    if (typeof x === "string") return `<div class="item">${e(x)}</div>`;
-    return `<div class="item"><b>${e(x.year)}</b>${e(x.text)}</div>`;
-  }).join("");
-  const otdBlock = `
-    <section class="otd">
-      <h3>${e(t("alm.section.otd"))}</h3>
-      ${otd || `<div class="item" style="color:var(--mute);font-style:italic">${e(t("alm.quietDay"))}</div>`}
-    </section>`;
-
-  const noteBlock = `
-    <section>
-      <h3>${e(t("alm.section.note"))}</h3>
-      <div class="note">"${e(p.editorNote || "")}"</div>
-    </section>`;
-
-  const stampBlock = opts.stamp ? `
-    <div class="stamp-box">
-      <div class="by">${e(t("alm.stampBy"))} @${e((opts.author || "you").toUpperCase())} · ${e(opts.stamp.time || "")}</div>
-      <div class="note">"${e(opts.stamp.note || "")}"</div>
-    </div>` : "";
-
+  // Illustration
   const illusBlock = opts.illustrationUrl
     ? `<img class="illus" src="${e(opts.illustrationUrl)}" alt="">`
     : `<div class="illus-fallback">${e(t("alm.illusForthcoming"))}</div>`;
 
+  // On this day
+  const otd = (p.onThisDay || []).slice(0, 3).map(x => {
+    if (typeof x === "string") return `<div class="item"><b>—</b><span class="text">${e(x)}</span></div>`;
+    return `<div class="item"><b>${e(x.year)}</b><span class="text">${e(x.text)}</span></div>`;
+  }).join("");
+  const otdBlock = `
+    <div class="otd-block">
+      <div class="h">历史上的<em>今天</em></div>
+      ${otd || `<div class="item" style="color:var(--mute);font-style:italic">${e(t("alm.quietDay"))}</div>`}
+    </div>`;
+
+  // Editor's note
+  const noteBlock = p.editorNote ? `
+    <div class="note-card">${e(p.editorNote)}</div>
+  ` : "";
+
+  // Personal stamp
+  const stampBlock = opts.stamp ? `
+    <div class="stamp-mark">
+      <div class="by">@${e((opts.author || "you").toUpperCase())} · ${e(opts.stamp.time || "")}</div>
+      <div class="note">${e(opts.stamp.note || "")}</div>
+    </div>` : "";
+
   return `
     <article class="alm">
-      <div class="head">
-        <div class="row">
-          <span>ALTERU PRESS</span>
-          <span>Almanac · No. ${e(p.issueNo)}</span>
-          <span>${e(dateStr)}</span>
-        </div>
-        <h1>${e(p.date.monthEn)}<em>${e(p.date.ordinalEn)}.</em></h1>
-        <div class="moon-chip">${e(t("alm.moon.label"))} · <em>${e(phase.name)}</em> · ${phase.illumination}${e(t("alm.moon.lit"))}</div>
+      <div class="top-stripe">
+        <span class="month-en">${e(p.date.monthEn)} ${e(p.date.y)}</span>
+        <span>No. ${e(p.issueNo)}</span>
       </div>
+      ${hero}
+      ${sunMoonRow}
+      ${yjRows}
       ${illusBlock}
-      ${lunarBlock}
-      ${smBlock}
-      ${yjBlock}
       ${otdBlock}
       ${noteBlock}
       ${stampBlock}
-      <div class="filed">${e(t("alm.filed"))} · ${e(p.date.weekday || "")}</div>
+      <div class="filed">${e(t("alm.filed"))}</div>
     </article>
   `;
 }
