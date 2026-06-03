@@ -5,6 +5,7 @@
 import { buildPosterSVG, POSTER_W, POSTER_H } from "./poster.js";
 import * as Wall from "./wall.js";
 import { aigramCtx, fetchUser, postToFeed } from "./aigram.js";
+import { openAigramProfile } from "../../shared/bridge.js";
 import { fetchDossier, DEMO_KEYS, DEMOS } from "./guide.js";
 import { DEMO_ILLUSTRATIONS, svgToDataUrl } from "./illustrations.js";
 import { t, applyI18n } from "../../shared/i18n.js";
@@ -85,6 +86,13 @@ async function init() {
     runDemo(qsDemo);
   }
 
+  // Wall click delegation — single listener, doesn't need re-binding on render
+  document.getElementById("wallGrid").addEventListener("click", onWallClick);
+  detailAuthorEl.addEventListener("click", (e) => {
+    const tap = e.target.closest("[data-profile]");
+    if (tap) openAigramProfile(tap.getAttribute("data-profile"));
+  });
+  Wall.prefetch();
   renderWall();
 }
 
@@ -161,19 +169,33 @@ function finalizeResult({ url, dossier }) {
 
 function openDetailFromWall(entry) {
   state.currentEntry = entry;
-  // Build poster from entry's stored dossier OR reconstruct from demo
-  const dossier = entry.dossier || (entry.demoKey ? {
-    ...DEMOS[entry.demoKey],
-    illustration: svgToDataUrl(DEMO_ILLUSTRATIONS[entry.demoKey]),
-  } : null);
-  if (!dossier) { toast("Couldn't load that entry"); return; }
+  // Reconstruct dossier from entry (covers both real saves and the demo
+  // samples that ship illustration + title only).
+  let dossier;
+  if (entry.demoKey && DEMOS[entry.demoKey]) {
+    dossier = { ...DEMOS[entry.demoKey], illustration: DEMO_ILLUSTRATIONS[entry.demoKey] };
+  } else {
+    dossier = {
+      title:     entry.title || "untitled",
+      kicker:    entry.kicker || "",
+      intro:     entry.intro || "",
+      anatomy:   entry.anatomy || [],
+      relatives: entry.relatives || [],
+      essay:     entry.essay || "",
+      illustration: entry.illustration || null,
+    };
+  }
 
   state.currentDossier = dossier;
   state.currentSvg = null;
 
+  const name = entry.userName || entry.handle || "anon";
+  const avatarHtml = entry.userAvatarUrl
+    ? `<img src="${escapeHtml(entry.userAvatarUrl)}" alt="">`
+    : escapeHtml((name || "a")[0].toUpperCase());
   detailAuthorEl.innerHTML = `
-    <div class="avatar">${escapeHtml((entry.handle || "a")[0])}</div>
-    <div class="name">@${escapeHtml(entry.handle)}</div>
+    <div class="avatar" ${entry.userId ? `data-profile="${escapeHtml(entry.userId)}"` : ""}>${avatarHtml}</div>
+    <div class="name" ${entry.userId ? `data-profile="${escapeHtml(entry.userId)}"` : ""}>@${escapeHtml(name)}</div>
     <div class="when">${formatRelTime(entry.createdAt)}</div>
   `;
   posterWrap.innerHTML = renderDossierHTML(dossier);
@@ -308,16 +330,17 @@ async function publishToWall() {
     btn.textContent = "✓ " + t("toast.posted");
   }
   try {
-    const entry = Wall.publish({
-      author: state.user.name,
-      handle: state.user.handle,
-      avatar: state.user.avatar,
+    const entry = await Wall.publish({
       illustration: state.currentDossier.illustration,
       title: state.currentDossier.title,
       kicker: state.currentDossier.kicker,
+      intro: state.currentDossier.intro,
+      anatomy: state.currentDossier.anatomy,
+      relatives: state.currentDossier.relatives,
+      essay: state.currentDossier.essay,
     });
     state.currentEntry = entry;
-    renderWall();
+    await renderWall();
     toast(t("toast.posted"));
   } finally {
     state.publishing = false;
@@ -335,9 +358,9 @@ async function shareToFeed() {
   toast(r.ok ? t("toast.sharedFeed") : t("toast.shareFail"));
 }
 
-function renderWall() {
+async function renderWall() {
   const grid = document.getElementById("wallGrid");
-  const items = Wall.getWall({ limit: 30 });
+  const items = await Wall.getWall({ limit: 30 });
   if (!items.length) {
     grid.innerHTML = `<div class="wall-empty">${escapeHtml(t("wall.empty"))}</div>`;
     return;
@@ -345,50 +368,53 @@ function renderWall() {
   $("wallCount").textContent = `${items.length} ${t("wall.countSuffix")}`;
   grid.innerHTML = items.map(it => {
     const illusSrc = it.illustration || (it.demoKey ? svgToDataUrl(DEMO_ILLUSTRATIONS[it.demoKey]) : "");
-    const initial = (it.handle || "a")[0].toUpperCase();
     return `
     <div class="wall-card" data-id="${escapeHtml(it.id)}">
       <img class="illus" src="${illusSrc}" alt="">
       <div class="body">
         <div class="title">${escapeHtml(it.title || "untitled")}</div>
-        <div class="author" data-author="${escapeHtml(it.handle)}">
-          <div class="avatar">${escapeHtml(initial)}</div>
-          <span class="name">@${escapeHtml(it.handle)}</span>
-        </div>
+        ${renderAuthorChip(it)}
         <div class="stats">
           <span>${formatRelTime(it.createdAt)}</span>
-          <span>♥ ${it.likes || 0}</span>
+          ${it.likes ? `<span>♥ ${it.likes}</span>` : ""}
         </div>
       </div>
     </div>`;
   }).join("");
-
-  grid.addEventListener("click", (e) => {
-    const authorChip = e.target.closest(".author");
-    if (authorChip) {
-      e.stopPropagation();
-      openProfile(authorChip.dataset.author);
-      return;
-    }
-    const card = e.target.closest(".wall-card");
-    if (card) {
-      const entry = Wall.getEntry(card.dataset.id);
-      if (entry) openDetailFromWall(entry);
-    }
-  }, { once: true });
-  // Re-attach next render
-  setTimeout(() => renderWall._bind?.(), 0);
 }
 
-function openProfile(handle) {
-  if (aigramCtx.isInside && window.parent !== window) {
-    try {
-      window.parent.postMessage({ type: "AW.PROFILE.OPEN", payload: { id: handle } }, "*");
-      return;
-    } catch {}
+function renderAuthorChip(entry) {
+  if (entry.isSelf) {
+    return `<div class="author author--me"><span class="name">YOU</span></div>`;
   }
-  toast(`${t("toast.profileSim")} @${handle}`);
+  const name = entry.userName || entry.handle || "·";
+  const avatar = entry.userAvatarUrl
+    ? `<img src="${escapeHtml(entry.userAvatarUrl)}" alt="" draggable="false">`
+    : `<span class="avatar-letter">${escapeHtml((name || "?")[0].toUpperCase())}</span>`;
+  const tap = entry.userId ? `data-profile="${escapeHtml(entry.userId)}"` : "";
+  return `
+    <div class="author" ${tap}>
+      <span class="avatar">${avatar}</span>
+      <span class="name">@${escapeHtml(name)}</span>
+    </div>`;
 }
+
+// Delegated click — wired ONCE at init below
+function onWallClick(e) {
+  const authorChip = e.target.closest("[data-profile]");
+  if (authorChip) {
+    e.stopPropagation();
+    openAigramProfile(authorChip.getAttribute("data-profile"));
+    return;
+  }
+  const card = e.target.closest(".wall-card");
+  if (card) {
+    Wall.getEntry(card.dataset.id).then((entry) => {
+      if (entry) openDetailFromWall(entry);
+    });
+  }
+}
+
 
 function nextIssueNo() {
   const n = Number(localStorage.getItem("alteru-press:issueCounter") || "0") + 1;

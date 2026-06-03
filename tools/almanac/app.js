@@ -6,6 +6,12 @@ import { buildAlmanacSVG, POSTER_W, POSTER_H } from "./poster.js";
 import { aigramCtx, fetchUser } from "../field-guide/aigram.js";
 import { t } from "../../shared/i18n.js";
 import { buildIllustrationPrompt } from "./seasons.js";
+import { createSave, listCrossUserSaves, fetchUserInfo, currentTelegramId } from "../../shared/save.js";
+import { openAigramProfile, isInAigram } from "../../shared/bridge.js";
+
+const almanacSave = createSave("almanac");
+let myStamps = {}; // { [dateKey]: { note, time, createdAt } }
+let stampsLoaded = false;
 
 const GEN_IMAGE_PROXY = "https://chat.aiwaves.tech/aigram/api/gen-image";
 // Style anchor: a 1024×1024 botanical-illustration ref hosted on Pages.
@@ -47,11 +53,17 @@ async function init() {
   $("dlPNG").addEventListener("click", downloadPNG);
   $("dlSVG").addEventListener("click", downloadSVG);
 
+  // Stamp wall click delegation — profile tap
+  $("stampList").addEventListener("click", (e) => {
+    const tap = e.target.closest("[data-profile]");
+    if (tap) openAigramProfile(tap.getAttribute("data-profile"));
+  });
+
   try {
     const page = await getTodayPage(new Date());
     state.page = page;
     render();
-    renderStampList();
+    await renderStampList();
     // Each user triggers their own gen-image for today.
     // In Aigram: hits the platform proxy → user gets a fresh illustration.
     // Standalone preview: falls back to committed PNG demo.
@@ -222,19 +234,28 @@ function renderAlmanacHTML(p, opts = {}) {
   `;
 }
 
-function stamp() {
+async function stamp() {
   const note = $("stampInput").value.trim();
-  if (!note) {
-    toast(t("stamp.toast.empty"));
-    return;
+  if (!note) { toast(t("stamp.toast.empty")); return; }
+  if (state.stamping) return;
+  state.stamping = true;
+  const btn = $("publishStamp");
+  if (btn) { btn.disabled = true; btn.style.opacity = "0.5"; btn.textContent = "✓ " + t("stamp.toast.stamped"); }
+  try {
+    const now = new Date();
+    const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    state.myStamp = { note, time };
+
+    await ensureStampsLoaded();
+    myStamps[todayKey()] = { note, time, createdAt: Date.now() };
+    almanacSave.persist({ stamps: myStamps });
+
+    render();
+    await renderStampList();
+    toast(t("stamp.toast.stamped"));
+  } finally {
+    state.stamping = false;
   }
-  const now = new Date();
-  const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-  state.myStamp = { note, time };
-  saveMyStamp(note, time);
-  render();
-  renderStampList();
-  toast(t("stamp.toast.stamped"));
 }
 
 function todayKey() {
@@ -242,45 +263,94 @@ function todayKey() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function saveMyStamp(note, time) {
-  const key = STAMPS_KEY(todayKey());
-  let list = [];
-  try {
-    const raw = localStorage.getItem(key);
-    if (raw) list = JSON.parse(raw) || [];
-  } catch {}
-  // Replace previous self stamp if any
-  list = list.filter(s => s.handle !== state.user.handle);
-  list.unshift({
-    handle: state.user.handle,
-    name: state.user.name,
-    note, time,
-    createdAt: Date.now(),
-  });
-  localStorage.setItem(key, JSON.stringify(list.slice(0, 60)));
+async function ensureStampsLoaded() {
+  if (stampsLoaded) return;
+  stampsLoaded = true;
+  const data = await almanacSave.load();
+  if (data && data.stamps && typeof data.stamps === "object") {
+    myStamps = data.stamps;
+  }
+  // Restore today's stamp into state so the poster shows it on reload
+  const todayStamp = myStamps[todayKey()];
+  if (todayStamp) state.myStamp = { note: todayStamp.note, time: todayStamp.time };
 }
 
-function getStamps() {
-  const key = STAMPS_KEY(todayKey());
-  // Local self-stamps
-  let local = [];
-  try {
-    const raw = localStorage.getItem(key);
-    if (raw) local = JSON.parse(raw) || [];
-  } catch {}
-  // Sample cross-user stamps for preview density
-  const samples = [
-    { handle: "jenny",      name: "Jenny",      note: "记得给妈打电话",                  time: "18:22", createdAt: Date.now() - 1000 * 60 * 80 },
-    { handle: "algram",     name: "Algram",     note: "今天发现窗外有只新麻雀",            time: "11:14", createdAt: Date.now() - 1000 * 60 * 200 },
-    { handle: "ghostpixel", name: "ghostpixel", note: "决定不回那条三天前的消息了",        time: "14:08", createdAt: Date.now() - 1000 * 60 * 400 },
-    { handle: "isaya",      name: "Isaya",      note: "the rain finally stopped at 4pm.", time: "16:02", createdAt: Date.now() - 1000 * 60 * 520 },
-    { handle: "jmf",        name: "JM·F",       note: "wrote one paragraph today.",       time: "21:45", createdAt: Date.now() - 1000 * 60 * 720 },
-  ];
-  return [...local, ...samples].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 30);
+const SAMPLES = [
+  { userId: "demo_jenny",      name: "Jenny",      handle: "jenny",      note: "记得给妈打电话",                  time: "18:22", createdAt: Date.now() - 1000 * 60 * 80 },
+  { userId: "demo_algram",     name: "Algram",     handle: "algram",     note: "今天发现窗外有只新麻雀",            time: "11:14", createdAt: Date.now() - 1000 * 60 * 200 },
+  { userId: "demo_ghostpixel", name: "ghostpixel", handle: "ghostpixel", note: "决定不回那条三天前的消息了",        time: "14:08", createdAt: Date.now() - 1000 * 60 * 400 },
+  { userId: "demo_isaya",      name: "Isaya",      handle: "isaya",      note: "the rain finally stopped at 4pm.", time: "16:02", createdAt: Date.now() - 1000 * 60 * 520 },
+];
+
+async function getStamps() {
+  await ensureStampsLoaded();
+  const today = todayKey();
+  const me = currentTelegramId();
+  const list = [];
+
+  // My stamp (optimistic) — if I stamped today
+  if (myStamps[today]) {
+    list.push({
+      userId: me || "me",
+      userName: "YOU",
+      userAvatarUrl: null,
+      handle: state.user.handle,
+      note: myStamps[today].note,
+      time: myStamps[today].time,
+      createdAt: myStamps[today].createdAt,
+      isSelf: true,
+    });
+  }
+
+  // Cross-user
+  if (isInAigram) {
+    const rows = await listCrossUserSaves();
+    const uniqueIds = new Set();
+    const others = [];
+    for (const row of rows) {
+      if (!row || row.user_id === me) continue;
+      const today_stamp = row.payload?.stamps?.[today];
+      if (!today_stamp) continue;
+      uniqueIds.add(row.user_id);
+      others.push({
+        userId: row.user_id,
+        note: today_stamp.note,
+        time: today_stamp.time,
+        createdAt: today_stamp.createdAt,
+        isSelf: false,
+        userName: null,
+        userAvatarUrl: null,
+      });
+    }
+    // Resolve user info
+    const infoMap = new Map();
+    await Promise.all(Array.from(uniqueIds).map(async (uid) => {
+      const info = await fetchUserInfo(uid);
+      if (info) infoMap.set(uid, info);
+    }));
+    for (const s of others) {
+      const info = infoMap.get(s.userId);
+      if (info) {
+        s.userName = info.handle || info.name;
+        s.userAvatarUrl = info.head_url;
+      }
+    }
+    list.push(...others);
+  }
+
+  // Samples only when wall is empty (preview / standalone)
+  if (list.length === 0) {
+    for (const s of SAMPLES) {
+      list.push({ ...s, userName: s.handle, isSelf: false });
+    }
+  }
+
+  list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  return list.slice(0, 30);
 }
 
-function renderStampList() {
-  const list = getStamps();
+async function renderStampList() {
+  const list = await getStamps();
   const el = $("stampList");
   if (!list.length) {
     el.innerHTML = `<div class="stamps-empty">${escapeHtml(t("stamp.wallEmpty"))}</div>`;
@@ -288,13 +358,19 @@ function renderStampList() {
     return;
   }
   $("stampCount").textContent = t("stamp.wallCount", { n: list.length });
-  el.innerHTML = list.map(s => `
+  el.innerHTML = list.map(s => {
+    const name = s.userName || s.handle || "·";
+    const avatarHtml = s.isSelf
+      ? ""
+      : s.userAvatarUrl
+        ? `<div class="avatar"><img src="${escapeHtml(s.userAvatarUrl)}" alt="" draggable="false"></div>`
+        : `<div class="avatar"><span class="avatar-letter">${escapeHtml((name || "?")[0].toUpperCase())}</span></div>`;
+    const author = s.isSelf
+      ? `<div class="author author--me"><span class="name">YOU</span></div>`
+      : `<div class="author" ${s.userId ? `data-profile="${escapeHtml(s.userId)}"` : ""}>${avatarHtml}<span class="name">@${escapeHtml(name)}</span></div>`;
+    return `
     <div class="stamp-card">
-      <div class="author">
-        <div class="avatar">${escapeHtml((s.handle || "a")[0].toUpperCase())}</div>
-        <span class="name">@${escapeHtml(s.handle)}</span>
-        <span class="when">${escapeHtml(s.time || "")}</span>
-      </div>
+      <div class="row">${author}<span class="when">${escapeHtml(s.time || "")}</span></div>
       <div class="note">${escapeHtml(s.note)}</div>
     </div>
   `).join("");
