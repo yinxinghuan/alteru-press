@@ -10,18 +10,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* 黑历 palette — warm aged paper + 老黄历 deep red + ink */
-    --paper: #F4ECD3;
-    --paper-2: #FAF5DF;
-    --paper-soft: #FCF7E2;
-    --ink: #1A1410;
-    --ink-soft: #4A3F30;
-    --mute: #837860;
-    --red: #B82018;
-    --red-soft: #D4584B;
-    --red-bg: rgba(184, 32, 24, 0.08);
-    --gold: #B79460;
-    --line: #C8B888;
+    /* 黑历 palette — inverted: dark inked paper + cream type + lacquer red */
+    --paper: #15110D;
+    --paper-2: #1E1813;
+    --paper-soft: #261F18;
+    --ink: #F0E6CC;
+    --ink-soft: #C9BCA0;
+    --mute: #8A7E66;
+    --red: #E84839;
+    --red-soft: #FF6A55;
+    --red-bg: rgba(232, 72, 57, 0.14);
+    --gold: #D9B679;
+    --line: #3A3026;
     /* compat for shared brand.css */
     --pink: var(--red);
     --pink-strong: var(--red);
@@ -116,147 +116,181 @@
   }
   @keyframes blink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-  /* ───────────────── Black-calendar leaf (黑历) ───────────────── */
+  /* ───────────────── Black-calendar leaf (黑历, inverted) ───────────────── */
   .page-wrap { padding: 0; }
   .alm {
     background: var(--paper);
-    padding: 0 16px 24px;
+    padding: 0 20px 20px;
     position: relative;
   }
+  /* hairline frame around the leaf */
+  .alm::before {
+    content: "";
+    position: absolute;
+    inset: 8px 12px 8px 12px;
+    border: 1px solid var(--line);
+    pointer-events: none;
+  }
+  .alm > * { position: relative; z-index: 1; }
 
-  /* Top stripe — month label + tiny meta */
+  /* Top stripe — month + issue, tight */
   .alm .top-stripe {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    padding: 18px 0 12px;
-    margin-bottom: 8px;
-    border-bottom: 1px solid var(--ink);
+    padding: 16px 4px 10px;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--line);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.16em;
+    font-size: 10px;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--ink-soft);
+    color: var(--mute);
   }
   .alm .top-stripe .month-en {
     font-family: 'Playfair Display', serif;
     font-weight: 900;
     font-style: italic;
-    font-size: 22px;
+    font-size: 18px;
     letter-spacing: -0.01em;
     text-transform: none;
     color: var(--ink);
   }
 
-  /* Hero — giant red date + lunar block beside */
+  /* Hero — date + meta, tight typeset block */
   .alm .hero {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 24px;
-    align-items: center;
-    padding: 22px 0 18px;
+    gap: 18px;
+    align-items: stretch;
+    padding: 18px 4px 16px;
+    border-bottom: 1px solid var(--line);
   }
   .alm .hero .date-num {
     font-family: 'Playfair Display', serif;
     font-weight: 900;
-    font-size: 168px;
-    line-height: 0.85;
+    font-size: 156px;
+    line-height: 0.82;
     color: var(--red);
-    letter-spacing: -0.08em;
-    text-shadow: 2px 2px 0 rgba(0,0,0,0.04);
-    margin: 0;
+    letter-spacing: -0.09em;
+    margin: -8px 0 -10px;
+    align-self: center;
   }
   .alm .hero .right {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    justify-content: center;
+    gap: 4px;
     min-width: 0;
+    padding-left: 14px;
+    border-left: 1px solid var(--line);
   }
   @media (max-width: 400px) {
-    .alm .hero { gap: 18px; }
-    .alm .hero .date-num { font-size: 140px; }
+    .alm .hero { gap: 14px; }
+    .alm .hero .date-num { font-size: 134px; }
   }
   @media (max-width: 360px) {
-    .alm .hero .date-num { font-size: 120px; }
+    .alm .hero .date-num { font-size: 116px; }
   }
   .alm .hero .weekday {
     font-family: 'Playfair Display', serif;
-    font-weight: 700;
+    font-weight: 900;
     font-style: italic;
-    font-size: 22px;
+    font-size: 19px;
     color: var(--ink);
-    line-height: 1.1;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
   }
   .alm .hero .weekday-zh {
-    font-size: 16px;
-    color: var(--ink);
-    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--mute);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
   }
   .alm .hero .lunar-line {
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    font-size: 17px;
+    font-size: 15px;
     color: var(--ink-soft);
+    line-height: 1.3;
   }
   .alm .hero .ganzhi-line {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    color: var(--ink-soft);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--mute);
+    margin-top: 2px;
   }
   .alm .hero .moon {
-    margin-top: 6px;
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px dotted var(--line);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--gold);
   }
-  .alm .hero .moon em { font-style: italic; color: var(--ink); text-transform: none; letter-spacing: 0; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 13px; }
+  .alm .hero .moon em {
+    font-style: italic;
+    color: var(--ink);
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 12.5px;
+  }
 
-  /* Sun/moon inline row */
+  /* Sun/moon inline row — quiet hairline strip */
   .alm .sun-moon-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    padding: 14px 0;
-    margin-bottom: 18px;
-    border-top: 1px solid var(--line);
+    padding: 10px 0;
     border-bottom: 1px solid var(--line);
   }
   .alm .sun-moon-row .cell {
     text-align: center;
+    border-right: 1px dotted var(--line);
   }
+  .alm .sun-moon-row .cell:last-child { border-right: none; }
   .alm .sun-moon-row .cell .k {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.14em;
+    font-size: 8.5px;
+    letter-spacing: 0.16em;
     color: var(--mute);
     text-transform: uppercase;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
   }
   .alm .sun-moon-row .cell .v {
     font-family: 'Playfair Display', serif;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 15.5px;
     color: var(--ink);
+    letter-spacing: 0.01em;
   }
 
-  /* 宜 / 忌 stacked rows */
+  /* 宜 / 忌 rows — tight, ornate */
   .alm .yj-row {
-    padding: 14px 0;
+    padding: 11px 4px;
     border-bottom: 1px solid var(--line);
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 44px 1px minmax(0, 1fr);
+    column-gap: 12px;
+    align-items: stretch;
+  }
+  .alm .yj-row .sep {
+    background: var(--line);
+    width: 1px;
   }
   .alm .yj-row .label {
     font-family: 'Playfair Display', serif;
     font-weight: 900;
-    font-size: 28px;
+    font-size: 26px;
     line-height: 1;
-    flex-shrink: 0;
-    width: 48px;
+    align-self: center;
+    text-align: center;
   }
   .alm .yj-row .label.yi { color: var(--red); }
   .alm .yj-row .label.ji { color: var(--ink); }
@@ -264,89 +298,94 @@
     display: block;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 400;
-    font-size: 8px;
-    letter-spacing: 0.12em;
+    font-size: 7.5px;
+    letter-spacing: 0.18em;
     color: var(--mute);
     margin-top: 4px;
     text-transform: uppercase;
   }
   .alm .yj-row .items {
-    flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
+    align-self: center;
   }
   .alm .yj-row .items .item {
     font-family: 'Playfair Display', serif;
     font-weight: 700;
-    font-size: 17px;
+    font-size: 15.5px;
     color: var(--ink);
-    line-height: 1.35;
+    line-height: 1.3;
   }
   .alm .yj-row .items .item .en {
     font-family: 'Montserrat', sans-serif;
     font-style: italic;
-    font-size: 11px;
+    font-size: 10.5px;
     color: var(--mute);
     margin-left: 6px;
     font-weight: 400;
   }
 
-  /* Illustration — corner ornament aspect */
+  /* Illustration — inverted print, framed */
   .alm .illus {
     display: block;
     width: 100%;
     height: auto;
-    margin: 20px 0;
-    border: 1px solid var(--ink);
-    box-shadow: 3px 3px 0 var(--red);
+    margin: 16px 0 14px;
+    border: 1px solid var(--line);
+    box-shadow: 2px 2px 0 var(--red);
+    filter: invert(1) hue-rotate(180deg) saturate(0.85) brightness(0.95);
   }
   .alm .illus-fallback {
     aspect-ratio: 1;
     background: var(--paper-2);
     border: 1px dashed var(--gold);
-    margin: 20px 0;
+    margin: 16px 0 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'Playfair Display', serif;
     font-style: italic;
     color: var(--mute);
-    font-size: 14px;
+    font-size: 13px;
   }
 
-  /* History (历史上的今天) */
+  /* History (历史上的今天) — tight rows */
   .alm .otd-block {
-    padding: 18px 0;
-    border-top: 1px solid var(--line);
+    padding: 12px 4px 14px;
+    border-bottom: 1px solid var(--line);
   }
   .alm .otd-block .h {
     font-family: 'Playfair Display', serif;
     font-weight: 900;
-    font-size: 20px;
+    font-style: italic;
+    font-size: 16px;
     color: var(--ink);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
   }
   .alm .otd-block .h em {
-    display: inline-block;
     color: var(--red);
-    font-style: normal;
+    font-style: italic;
   }
   .alm .otd-block .item {
-    margin-bottom: 10px;
-    font-size: 14.5px;
-    line-height: 1.55;
+    margin-bottom: 6px;
+    font-size: 13px;
+    line-height: 1.5;
     color: var(--ink-soft);
     display: grid;
-    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-columns: 44px minmax(0, 1fr);
     column-gap: 10px;
   }
+  .alm .otd-block .item:last-child { margin-bottom: 0; }
   .alm .otd-block .item b {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
     color: var(--red);
-    line-height: 1.55;
+    line-height: 1.5;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
   }
   .alm .otd-block .item span.text {
     min-width: 0;
@@ -354,107 +393,106 @@
     word-break: break-word;
   }
 
-  /* Editor's note — red border card */
+  /* Editor's note — pull-quote, tighter */
   .alm .note-card {
-    margin-top: 18px;
-    padding: 18px 22px;
+    margin: 14px 0 0;
+    padding: 14px 18px 14px 20px;
     background: var(--red-bg);
-    border-left: 4px solid var(--red);
+    border-left: 3px solid var(--red);
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    font-size: 17px;
-    line-height: 1.5;
+    font-size: 15px;
+    line-height: 1.45;
     color: var(--ink);
+    position: relative;
   }
   .alm .note-card::before {
     content: "“";
-    display: block;
+    position: absolute;
+    top: -2px;
+    left: 8px;
     font-family: 'Playfair Display', serif;
     font-weight: 900;
     font-style: normal;
-    font-size: 48px;
-    line-height: 0.4;
+    font-size: 36px;
     color: var(--red);
-    margin-bottom: 8px;
+    opacity: 0.45;
   }
 
-  /* Personal stamp on the page (when stamped) */
+  /* Personal stamp — small red seal */
   .alm .stamp-mark {
-    margin-top: 26px;
-    padding: 18px 22px;
-    border: 2px solid var(--red);
-    border-radius: 4px;
+    margin-top: 18px;
+    padding: 12px 16px;
+    border: 1.5px solid var(--red);
+    border-radius: 2px;
     position: relative;
-    background: var(--paper-soft);
-    transform: rotate(-1.5deg);
+    background: rgba(232, 72, 57, 0.05);
+    transform: rotate(-1deg);
   }
   .alm .stamp-mark .by {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.18em;
+    font-size: 9px;
+    letter-spacing: 0.2em;
     color: var(--red);
     text-transform: uppercase;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .alm .stamp-mark .note {
     font-family: 'Playfair Display', serif;
+    font-style: italic;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 15px;
     color: var(--ink);
+    line-height: 1.35;
   }
 
-  /* Filed footer */
+  /* Filed footer — quiet line */
   .alm .filed {
-    margin-top: 28px;
-    padding-top: 14px;
-    border-top: 1px solid var(--ink);
+    margin-top: 18px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.14em;
+    font-size: 9px;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--mute);
     text-align: center;
   }
 
-  /* ───────────────── Stamp composer (signature feel) ───────────────── */
+  /* ───────────────── Stamp composer (signature feel, dark) ───────────────── */
   .stamp-row {
-    padding: 24px 16px 12px;
-    background: var(--paper-soft);
-    border-top: 1px solid var(--ink);
-    border-bottom: 1px solid var(--ink);
+    padding: 20px 20px 14px;
+    background: var(--paper-2);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    margin-top: 4px;
   }
   .stamp-row h3 {
     font-family: 'Playfair Display', serif;
     font-weight: 900;
-    font-size: 16px;
-    margin-bottom: 4px;
+    font-style: italic;
+    font-size: 15px;
+    margin-bottom: 10px;
     color: var(--ink);
+    letter-spacing: -0.01em;
   }
   .stamp-row h3 em {
     color: var(--red);
     font-style: italic;
   }
-  .stamp-row .stamp-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    color: var(--mute);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
   .stamp-row textarea {
     width: 100%;
     background: transparent;
     border: none;
-    border-bottom: 2px solid var(--ink);
-    padding: 10px 0;
+    border-bottom: 1px solid var(--ink-soft);
+    padding: 8px 0;
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1.4;
     color: var(--ink);
     resize: none;
-    height: 70px;
+    height: 56px;
     outline: none;
   }
   .stamp-row textarea::placeholder { color: var(--mute); }
@@ -462,17 +500,17 @@
   .stamp-row .stamp-actions {
     display: flex;
     gap: 8px;
-    margin-top: 14px;
+    margin-top: 12px;
   }
   .stamp-row .stamp-actions button {
     flex: 1;
-    min-height: 44px;
+    min-height: 40px;
     background: var(--red);
     color: var(--paper);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     border-radius: 2px;
     padding: 0 6px;
@@ -481,18 +519,18 @@
   .stamp-row .stamp-actions button:active { opacity: 0.7; }
   .stamp-row .share-row {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     margin-top: 8px;
   }
   .stamp-row .share-row button {
     flex: 1;
-    min-height: 38px;
+    min-height: 32px;
     background: transparent;
-    color: var(--ink-soft);
+    color: var(--mute);
     border: 1px solid var(--line);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    letter-spacing: 0.1em;
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     border-radius: 2px;
   }
@@ -500,23 +538,26 @@
   .stamp-row .small-hint {
     margin-top: 10px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    font-size: 9px;
     color: var(--mute);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.16em;
+    text-align: center;
   }
 
-  /* ───────────────── Wall of stamps ───────────────── */
+  /* ───────────────── Wall of stamps (dark) ───────────────── */
   .stamps {
-    padding: 32px 16px 16px;
+    padding: 24px 20px 16px;
     margin-top: 4px;
   }
   .stamps h3 {
     font-family: 'Playfair Display', serif;
     font-weight: 900;
-    font-size: 22px;
-    margin-bottom: 4px;
+    font-style: italic;
+    font-size: 18px;
+    margin-bottom: 2px;
     color: var(--ink);
+    letter-spacing: -0.01em;
   }
   .stamps h3 em {
     color: var(--red);
@@ -524,48 +565,48 @@
   }
   .stamps .count {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.14em;
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
     color: var(--mute);
     text-transform: uppercase;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
   .stamp-card {
     background: var(--paper-soft);
-    border: 1px solid var(--ink);
-    border-left: 4px solid var(--red);
-    padding: 14px 16px;
-    margin-bottom: 10px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--red);
+    padding: 11px 14px;
+    margin-bottom: 8px;
   }
   .stamp-card .row {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .stamp-card .author {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
+    font-size: 10px;
     color: var(--mute);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
   }
   .stamp-card .author[data-profile] { cursor: pointer; }
   .stamp-card .author--me .name {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 10.5px;
-    letter-spacing: 0.16em;
-    color: var(--pink-strong);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--red);
   }
   .stamp-card .avatar {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: var(--paper-2);
+    background: var(--paper);
     overflow: hidden;
     border: 1px solid var(--line);
     display: inline-flex;
@@ -581,45 +622,45 @@
   .stamp-card .avatar-letter {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
-    font-size: 11px;
-    color: var(--purple);
+    font-size: 10px;
+    color: var(--red);
   }
   .stamp-card .author .name { color: var(--ink); font-weight: 600; }
   .stamp-card .when {
     margin-left: auto;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
+    font-size: 9.5px;
     color: var(--mute);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
   }
   .stamp-card .note {
     font-family: 'Playfair Display', serif;
     font-style: italic;
-    font-size: 16px;
+    font-size: 14.5px;
     color: var(--ink);
     line-height: 1.4;
   }
   .stamps-empty {
     border: 1px dashed var(--line);
-    border-radius: 8px;
-    padding: 28px 18px;
+    padding: 24px 16px;
     text-align: center;
     color: var(--mute);
     font-style: italic;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   /* ───────────────── Colophon ───────────────── */
   .colophon {
-    margin-top: 32px;
-    padding: 22px 16px 32px;
-    border-top: 3px double var(--ink);
+    margin-top: 20px;
+    padding: 18px 20px 28px;
+    border-top: 1px double var(--line);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.08em;
+    font-size: 9px;
+    letter-spacing: 0.18em;
     color: var(--mute);
     text-transform: uppercase;
-    line-height: 1.8;
+    line-height: 1.85;
+    text-align: center;
   }
 
   /* ───────────────── Toast ───────────────── */
@@ -695,7 +736,7 @@
 
 <div id="toast" class="toast"></div>
 
-<script type="module" src="app.js?v=p4"></script>
+<script type="module" src="app.js?v=p5"></script>
 
 </body>
 </html>

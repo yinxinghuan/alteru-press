@@ -198,10 +198,12 @@ function renderAlmanacHTML(p, opts = {}) {
   const yjRows = `
     <div class="yj-row">
       <div class="label yi">宜<span class="en">${e(t("alm.yj.yi"))}</span></div>
+      <div class="sep"></div>
       <div class="items">${yiItems || `<span class="item" style="color:var(--mute);font-style:italic">—</span>`}</div>
     </div>
     <div class="yj-row">
       <div class="label ji">忌<span class="en">${e(t("alm.yj.ji"))}</span></div>
+      <div class="sep"></div>
       <div class="items">${jiItems || `<span class="item" style="color:var(--mute);font-style:italic">—</span>`}</div>
     </div>`;
 
