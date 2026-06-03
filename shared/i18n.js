@@ -125,6 +125,7 @@ const STRINGS = {
     "stamp.toast.empty":    "Write a line first",
     "stamp.toast.stamped":  "Stamped",
     "stamp.toast.failed":   "Couldn't load today's page",
+    "stamp.alreadyStamped": "Update stamp",
   },
 
   zh: {
@@ -229,6 +230,7 @@ const STRINGS = {
     "stamp.toast.empty":    "先写一句话",
     "stamp.toast.stamped":  "已盖章",
     "stamp.toast.failed":   "今天这一页加载失败",
+    "stamp.alreadyStamped": "更新章",
   },
 };
 

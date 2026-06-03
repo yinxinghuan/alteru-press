@@ -122,8 +122,9 @@ export async function getWall({ limit = 30 } = {}) {
     }
   }
 
-  // 3. samples — only when wall is otherwise empty (preview / standalone)
-  if (all.length === 0) {
+  // 3. samples — only in standalone preview (not in real Aigram, where an
+  //    empty wall is just an empty wall, not an excuse for fake users)
+  if (all.length === 0 && !isInAigram) {
     for (const s of SAMPLE_WALL_ENTRIES) {
       all.push({
         id: s.id,

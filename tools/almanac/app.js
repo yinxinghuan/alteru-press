@@ -240,7 +240,8 @@ async function stamp() {
   if (state.stamping) return;
   state.stamping = true;
   const btn = $("publishStamp");
-  if (btn) { btn.disabled = true; btn.style.opacity = "0.5"; btn.textContent = "✓ " + t("stamp.toast.stamped"); }
+  const originalLabel = btn?.textContent || "";
+  if (btn) { btn.disabled = true; btn.style.opacity = "0.5"; }
   try {
     const now = new Date();
     const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
@@ -255,6 +256,12 @@ async function stamp() {
     toast(t("stamp.toast.stamped"));
   } finally {
     state.stamping = false;
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = "";
+      // After publish, button reflects that a stamp now exists today
+      btn.textContent = "✓ " + t("stamp.alreadyStamped");
+    }
   }
 }
 
@@ -270,9 +277,22 @@ async function ensureStampsLoaded() {
   if (data && data.stamps && typeof data.stamps === "object") {
     myStamps = data.stamps;
   }
-  // Restore today's stamp into state so the poster shows it on reload
+  // Restore today's stamp into UI state — textarea pre-filled + button
+  // already-stamped so user doesn't accidentally re-stamp blindly.
   const todayStamp = myStamps[todayKey()];
-  if (todayStamp) state.myStamp = { note: todayStamp.note, time: todayStamp.time };
+  if (todayStamp) {
+    state.myStamp = { note: todayStamp.note, time: todayStamp.time };
+    syncStampButtonAlreadyStamped();
+  }
+}
+
+function syncStampButtonAlreadyStamped() {
+  const input = $("stampInput");
+  const btn = $("publishStamp");
+  if (input && state.myStamp?.note) input.value = state.myStamp.note;
+  if (btn) {
+    btn.textContent = "✓ " + t("stamp.alreadyStamped");
+  }
 }
 
 const SAMPLES = [
@@ -338,8 +358,8 @@ async function getStamps() {
     list.push(...others);
   }
 
-  // Samples only when wall is empty (preview / standalone)
-  if (list.length === 0) {
+  // Samples only in standalone preview (not real Aigram)
+  if (list.length === 0 && !isInAigram) {
     for (const s of SAMPLES) {
       list.push({ ...s, userName: s.handle, isSelf: false });
     }
