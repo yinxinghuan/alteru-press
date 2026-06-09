@@ -46,6 +46,8 @@ const STRINGS = {
     // Processing
     "proc.upload.step": "UPLOADING",
     "proc.upload.msg":  "Sending the photograph…",
+    "proc.look.step":   "INSPECTING",
+    "proc.look.msg":    "Inspecting the specimen…",
     "proc.read.step":   "WRITING",
     "proc.read.msg":    "Writing the dossier…",
     "proc.draw.step":   "DRAWING",
@@ -157,6 +159,8 @@ const STRINGS = {
 
     "proc.upload.step": "上传中",
     "proc.upload.msg":  "正在上传照片…",
+    "proc.look.step":   "审视中",
+    "proc.look.msg":    "正在审视标本…",
     "proc.read.step":   "撰写中",
     "proc.read.msg":    "正在撰写说明书…",
     "proc.draw.step":   "绘制中",

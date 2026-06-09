@@ -2,13 +2,13 @@
 // Mobile-first instant-use tool: tap → camera → AI dossier → specimen card →
 // publish to cross-user wall. Detail overlay shows full field guide.
 
-import { buildPosterSVG, POSTER_W, POSTER_H } from "./poster.js?v=p3";
-import * as Wall from "./wall.js?v=p3";
-import { aigramCtx, fetchUser, postToFeed } from "./aigram.js?v=p3";
-import { openAigramProfile } from "../../shared/bridge.js?v=p3";
-import { fetchDossier, DEMO_KEYS, DEMOS } from "./guide.js?v=p3";
-import { DEMO_ILLUSTRATIONS, svgToDataUrl } from "./illustrations.js?v=p3";
-import { t, applyI18n } from "../../shared/i18n.js?v=p3";
+import { buildPosterSVG, POSTER_W, POSTER_H } from "./poster.js?v=p4";
+import * as Wall from "./wall.js?v=p4";
+import { aigramCtx, fetchUser, postToFeed } from "./aigram.js?v=p4";
+import { openAigramProfile } from "../../shared/bridge.js?v=p4";
+import { fetchDossier, DEMO_KEYS, DEMOS } from "./guide.js?v=p4";
+import { DEMO_ILLUSTRATIONS, svgToDataUrl } from "./illustrations.js?v=p4";
+import { t, applyI18n } from "../../shared/i18n.js?v=p4";
 
 const $ = (id) => document.getElementById(id);
 
@@ -108,8 +108,9 @@ async function handleFile(file) {
       imageDataUrl: url,
       onProgress: (phase) => {
         if (phase === "upload") showProcessing(t("proc.upload.step"), t("proc.upload.msg"));
-        else if (phase === "write") showProcessing(t("proc.read.step"), t("proc.read.msg"));
-        else if (phase === "draw")  showProcessing(t("proc.draw.step"), t("proc.draw.msg"));
+        else if (phase === "look")  showProcessing(t("proc.look.step"),  t("proc.look.msg"));
+        else if (phase === "write") showProcessing(t("proc.read.step"),  t("proc.read.msg"));
+        else if (phase === "draw")  showProcessing(t("proc.draw.step"),  t("proc.draw.msg"));
       },
     });
   } catch (e) {

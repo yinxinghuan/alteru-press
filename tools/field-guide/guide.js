@@ -16,6 +16,7 @@ import { locale } from "../../shared/i18n.js";
 const UPLOAD_URL    = "https://chat.aiwaves.tech/aigram/api/upload";
 const CHAT_URL      = "https://chat.aiwaves.tech/aigram/api/game-chat";
 const GEN_IMAGE_URL = "https://chat.aiwaves.tech/aigram/api/gen-image";
+const RECOGNIZE_URL = "https://chat.aiwaves.tech/aigram/api/recognize";
 
 // ─── Public API ──────────────────────────────────────────────────────────
 
@@ -33,17 +34,25 @@ export async function fetchDossier({ imageDataUrl, demoKey, onProgress } = {}) {
   }
 
   try {
-    // 1. Upload photo → public URL (used as gen-image ref later)
+    // 1. Upload photo → public URL (used as recognize input + gen-image ref)
     progress("upload");
     const photoUrl = await uploadDataUrl(imageDataUrl);
 
-    // 2. LLM imagines a dossier (no vision, doesn't see photo — same as
-    //    tap-and-tell's pattern).
+    // 2. Vision recognize — labels/parts/caption that actually match the
+    //    photo. Falls back to {} if the endpoint hiccups so the dossier
+    //    path still works.
+    progress("look");
+    const vision = await recognizeViaVision(photoUrl).catch(e => {
+      console.warn("recognize failed; proceeding without vision", e);
+      return null;
+    });
+
+    // 3. LLM writes the dossier, now grounded in what's actually in the photo.
     progress("write");
-    const dossier = await composeDossierViaLLM();
+    const dossier = await composeDossierViaLLM(vision);
     if (!dossier) return { ok: false, reason: "llm_no_dossier" };
 
-    // 3. gen-image makes the specimen card using photo as ref + the
+    // 4. gen-image makes the specimen card using photo as ref + the
     //    illustration_prompt from the LLM. This is what gives the
     //    output visual fidelity to the actual object the user shot.
     progress("draw");
@@ -92,7 +101,7 @@ function dossierSystemPrompt(lang) {
     ? '\n\nLANGUAGE: Write title / kicker / intro / anatomy notes / relative names+origins+notes / essay all in 中文 (simplified Chinese). Only the illustration_prompt stays English (it goes to an image model).'
     : '\n\nLANGUAGE: Write everything in English.';
 
-  return `You are the staff cultural anthropologist at AlterU Press, a small editorial that publishes single-page "field guides" to ordinary objects. A reader has photographed an ordinary man-made object — you don't know what it is, but you must imagine plausibly and commit. Pick something specific (a hat, a teapot, a leather satchel, a kitchen scissor, a fountain pen, etc.) and write a dossier as if you had inspected it.
+  return `You are the staff cultural anthropologist at AlterU Press, a small editorial that publishes single-page "field guides" to ordinary objects. A reader has photographed an ordinary object and a vision system has already identified what it is — you must commit to that identification (do not second-guess or substitute a different object) and write a dossier as if you had inspected it.
 
 Output STRICT JSON only — no markdown, no preamble, exactly this shape:
 {
@@ -117,9 +126,40 @@ Rules:
 Tone: editorial, Wallpaper / Cabinet Magazine. Avoid "amazing" / "iconic" / "rich history". No emojis.` + langDirective;
 }
 
-async function composeDossierViaLLM() {
+async function recognizeViaVision(imageUrl) {
+  const res = await fetch(RECOGNIZE_URL, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ image_url: imageUrl, mode: "object" }),
+  });
+  if (!res.ok) throw new Error(`recognize http ${res.status}`);
+  const json = await res.json();
+  if (!json.ok) return null;
+  return json;
+}
+
+function visionBrief(vision) {
+  if (!vision) return "";
+  const labels = (vision.labels || []).slice(0, 3).join(", ");
+  const parts = (vision.parts || []).slice(0, 4).join("; ");
+  const attrs = (vision.attributes || []).slice(0, 4).join(", ");
+  const caption = vision.caption || "";
+  const subject = labels || caption.split(/[.,;]/)[0] || "an ordinary object";
+  return [
+    `VISION REPORT (commit to this — do not substitute):`,
+    `· subject: ${subject}`,
+    caption ? `· caption: ${caption}` : "",
+    attrs    ? `· attributes: ${attrs}` : "",
+    parts    ? `· visible parts: ${parts}` : "",
+  ].filter(Boolean).join("\n");
+}
+
+async function composeDossierViaLLM(vision) {
   const lang = locale === "zh" ? "zh" : "en";
-  const userMsg = `A reader just photographed an ordinary man-made object. Imagine what it might be and write the dossier. Return JSON only. seed:${Math.random().toString(36).slice(2, 8)}`;
+  const brief = visionBrief(vision);
+  const userMsg = brief
+    ? `${brief}\n\nWrite the dossier for this specific subject. title MUST match the vision subject (rephrase naturally, but do not pick a different object). Return JSON only.`
+    : `A reader just photographed an ordinary man-made object. Imagine what it might be and write the dossier. Return JSON only. seed:${Math.random().toString(36).slice(2, 8)}`;
   const res = await fetch(CHAT_URL, {
     method: "POST",
     headers: { "content-type": "application/json" },
