@@ -2,13 +2,13 @@
 // Mobile-first instant-use tool: tap → camera → AI dossier → specimen card →
 // publish to cross-user wall. Detail overlay shows full field guide.
 
-import { buildPosterSVG, POSTER_W, POSTER_H } from "./poster.js?v=p4";
-import * as Wall from "./wall.js?v=p4";
-import { aigramCtx, fetchUser, postToFeed } from "./aigram.js?v=p4";
-import { openAigramProfile } from "../../shared/bridge.js?v=p4";
-import { fetchDossier, DEMO_KEYS, DEMOS } from "./guide.js?v=p4";
-import { DEMO_ILLUSTRATIONS, svgToDataUrl } from "./illustrations.js?v=p4";
-import { t, applyI18n } from "../../shared/i18n.js?v=p4";
+import { buildPosterSVG, POSTER_W, POSTER_H } from "./poster.js?v=p5";
+import * as Wall from "./wall.js?v=p5";
+import { aigramCtx, fetchUser, postToFeed } from "./aigram.js?v=p5";
+import { openAigramProfile } from "../../shared/bridge.js?v=p5";
+import { fetchDossier, DEMO_KEYS, DEMOS } from "./guide.js?v=p5";
+import { DEMO_ILLUSTRATIONS, svgToDataUrl } from "./illustrations.js?v=p5";
+import { t, applyI18n } from "../../shared/i18n.js?v=p5";
 
 const $ = (id) => document.getElementById(id);
 
@@ -74,7 +74,6 @@ async function init() {
   // Detail overlay
   $("detailClose").addEventListener("click", closeDetail);
   $("dlPNG").addEventListener("click", downloadPNG);
-  $("dlSVG").addEventListener("click", downloadSVG);
   $("publishBtn").addEventListener("click", publishToWall);
   shareFeedBtn.addEventListener("click", shareToFeed);
 
@@ -106,9 +105,12 @@ async function handleFile(file) {
   try {
     dossier = await fetchDossier({
       imageDataUrl: url,
-      onProgress: (phase) => {
+      onProgress: (phase, data) => {
         if (phase === "upload") showProcessing(t("proc.upload.step"), t("proc.upload.msg"));
-        else if (phase === "look")  showProcessing(t("proc.look.step"),  t("proc.look.msg"));
+        else if (phase === "look")   showProcessing(t("proc.look.step"),   t("proc.look.msg"));
+        else if (phase === "looked" && data?.labels?.[0]) {
+          showProcessing(t("proc.seen.step"), `· ${data.labels.slice(0, 2).join(" · ")} ·`);
+        }
         else if (phase === "write") showProcessing(t("proc.read.step"),  t("proc.read.msg"));
         else if (phase === "draw")  showProcessing(t("proc.draw.step"),  t("proc.draw.msg"));
       },
@@ -156,8 +158,11 @@ function finalizeResult({ url, dossier }) {
     btn.textContent = t("detail.publish");
   }
 
+  const meAvatar = state.user.avatar
+    ? `<img src="${escapeHtml(state.user.avatar)}" alt="">`
+    : escapeHtml((state.user.handle || "a")[0].toUpperCase());
   detailAuthorEl.innerHTML = `
-    <div class="avatar">${escapeHtml((state.user.handle || "a")[0])}</div>
+    <div class="avatar">${meAvatar}</div>
     <div class="name">@${escapeHtml(state.user.handle)}</div>
     <div class="when">${escapeHtml(t("time.justNow"))}</div>
   `;

@@ -46,6 +46,12 @@ export async function fetchDossier({ imageDataUrl, demoKey, onProgress } = {}) {
       console.warn("recognize failed; proceeding without vision", e);
       return null;
     });
+    // Reveal what the vision system actually saw — this is the "AI really
+    // looked" moment users feel. Brief pause so the label is legible.
+    if (vision?.labels?.length) {
+      progress("looked", { labels: vision.labels });
+      await new Promise(r => setTimeout(r, 800));
+    }
 
     // 3. LLM writes the dossier, now grounded in what's actually in the photo.
     progress("write");
